@@ -1,6 +1,6 @@
-# Ghostty + Zsh Terminal Setup
+# macOS Dotfiles & Terminal Setup
 
-A macOS terminal configuration using Ghostty and Zsh, tuned for fast startup (~38ms) and Neovim workflows.
+A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and fast macOS system defaults.
 
 ---
 
@@ -28,6 +28,7 @@ A macOS terminal configuration using Ghostty and Zsh, tuned for fast startup (~3
 ├── zsh/
 │   ├── .zshrc                 # Shell configuration and lazy-loaders
 │   └── .zsh_plugins.txt       # Antidote plugin list
+├── macos.sh                   # macOS defaults & UI animation speedups
 └── README.md
 ```
 
@@ -62,6 +63,12 @@ touch ~/.hushlogin
 
 # Compile plugins
 zsh -i -c "antidote bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.zsh"
+```
+
+### 3. macOS System & Animation Optimizations
+```bash
+chmod +x macos.sh
+./macos.sh
 ```
 
 ---
