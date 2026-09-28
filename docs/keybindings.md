@@ -1,24 +1,24 @@
 # Developer Keybindings Guide (Ghostty, Tmux & LazyVim)
 
-A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, and Java/Spring development.
+A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing, Neovim editing, and extensible language tooling.
 
 ---
 
 ## Hierarchy
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│ 🖥️  1. Workspace & Layout (Tmux Projects, Panes & Splits)        │
-│   ┌───────────────────────────────────────────────────────────┐ │
-│   │ 📄  2. Code Editor (Buffer Lifecycle, File in RAM & Disk) │ │
-│   │   ┌─────────────────────────────────────────────────────┐ │ │
-│   │   │ 🛠️  3. Tooling & Ecosystem (LSP, Tests, Git)        │ │ │
-│   │   │   ┌───────────────────────────────────────────────┐ │ │ │
-│   │   │   │ ✏️  4. Inside the Buffer (CRUD Scopes)         │ │ │ │
-│   │   │   └───────────────────────────────────────────────┘ │ │ │
-│   │   └─────────────────────────────────────────────────────┘ │ │
-│   └───────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│ 🖥️  1. GHOSTTY (Terminal Emulator)                      │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ ⚙️  2. TMUX (Workspace & Multiplexer)             │  │
+│  │  ┌────────────────────────────────────────────┐  │  │
+│  │  │ 📄  3. NEOVIM (Editor & Universal Tooling) │  │  │
+│  │  │  ┌──────────────────────────────────────┐  │  │  │
+│  │  │  │ 🛠️  4. LANGUAGE & LSP (Extensible)    │  │  │  │
+│  │  │  └──────────────────────────────────────┘  │  │  │
+│  │  └────────────────────────────────────────────┘  │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
 ```
 
 > [!TIP] Action & Context Legend
@@ -27,18 +27,24 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 
 ---
 
-## 1. Workspace & Layout
+## 1. Ghostty (Terminal Host)
 
-### Tmux Terminal Panes
+### Terminal Controls & Shortcuts
 
-| Keybinding       | Action                                                         |
-|:-----------------|:---------------------------------------------------------------|
-| `Ctrl-b %`       | **W:** Split pane vertically to the right (Editor + Tests)     |
-| `Ctrl-b "`       | **W:** Split pane horizontally below                           |
-| `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right       |
-| `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (tap repeatedly)  |
-| `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                    |
-| Mouse Drag       | **R:** Click and drag pane border with trackpad                |
+| Keybinding            | Action                                                                         |
+|:----------------------|:-------------------------------------------------------------------------------|
+| `Option + \``         | **W:** Toggle Ghostty dropdown terminal visibility anywhere in macOS            |
+| `Cmd + =` / `Cmd + -` | **R:** Increase / decrease terminal font size                                  |
+| `Cmd + 0`             | **R:** Reset font size to default (14pt)                                       |
+| `Cmd + Shift + ,`     | **W:** Open Ghostty configuration file                                         |
+| `Cmd + c` / `Cmd + v` | **E:** Native macOS clipboard copy and paste                                   |
+| `Ctrl + r`            | **N:** Fuzzy search shell command history via FZF                              |
+| `Ctrl + f` or `tms`   | **N:** Launch tmux-sessionizer repo switcher from prompt                       |
+| `Ctrl + Q`            | **W:** Quit Ghostty window (background Tmux sessions remain alive in RAM)     |
+
+---
+
+## 2. Tmux (Workspace & Multiplexer)
 
 ### Tmux Projects & Sessions (tms)
 
@@ -53,6 +59,30 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `Ctrl-b d`          | **W:** Detach session (leaves editor & background tests running)| Tmux |
 | `Ctrl-b X`          | **W:** Kill active session (prompts confirmation `y/n`)         | Tmux |
 | `:qa` then `exit`   | **W:** Quit Neovim and terminate active session completely      | ✏️   |
+
+### Tmux Terminal Panes
+
+| Keybinding       | Action                                                         |
+|:-----------------|:---------------------------------------------------------------|
+| `Ctrl-b %`       | **W:** Split pane vertically to the right (Editor + Tests)     |
+| `Ctrl-b "`       | **W:** Split pane horizontally below                           |
+| `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right       |
+| `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (tap repeatedly)  |
+| `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                    |
+| Mouse Drag       | **R:** Click and drag pane border with trackpad                |
+
+### Splits vs Tabs vs Sessions
+
+| Scope                | What it is                    | When to use it                                                 |
+|:---------------------|:------------------------------|:---------------------------------------------------------------|
+| **Buffer (Top Bar)** | File loaded into RAM          | Open files you are editing; cycled with `[b` / `]b`            |
+| **Window Split**     | Tiled view within same screen | View 2+ files simultaneously (code + test, code + guide)       |
+| **Tabpage**          | Full-screen layout page       | Separate visual workspaces within the same project             |
+| **Terminal Tab**     | Separate Ghostty tab / tmux   | Completely separate projects (Work repo vs Notes vs Dotfiles)  |
+
+---
+
+## 3. Neovim (Editor & Universal Tooling)
 
 ### File & Project Search
 
@@ -119,19 +149,6 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `<space><tab>o`            | Close all other tabs (`:tabonly`)                              |
 | `<space><tab>f` / `<tab>l` | Jump to the first / last tab                                   |
 
-### Splits vs Tabs vs Sessions
-
-| Scope                | What it is                    | When to use it                                                 |
-|:---------------------|:------------------------------|:---------------------------------------------------------------|
-| **Buffer (Top Bar)** | File loaded into RAM          | Open files you are editing; cycled with `[b` / `]b`            |
-| **Window Split**     | Tiled view within same screen | View 2+ files simultaneously (code + test, code + guide)       |
-| **Tabpage**          | Full-screen layout page       | Separate visual workspaces within the same project             |
-| **Terminal Tab**     | Separate Ghostty tab / tmux   | Completely separate projects (Work repo vs Notes vs Dotfiles)  |
-
----
-
-## 2. Code Editor
-
 ### Buffer Actions (Save, Close & Delete)
 
 | Command                  | Action                                                               |
@@ -160,79 +177,17 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | Top bar concept      | The top bar displays open **Buffers** (files in RAM), not Vim tabs.    |
 | Saving behavior      | Writing to disk (`:w`) updates physical file. Does not git add/commit. |
 
----
-
-## 3. Language & Tooling
-
-### Java & Spring Boot
-
-#### Running Applications & Tests
-
-| Keybinding          | Action                                                                         |
-|:--------------------|:-------------------------------------------------------------------------------|
-| `<space>dc`         | Run `main()` class or Spring Boot app (auto-discovers main classes via JDTLS)  |
-| `<Ctrl-/>`          | Toggle project terminal to run `./gradlew bootRun` or `./mvnw spring-boot:run` |
-| `<space>tr`         | Run the `@Test` method under cursor                                            |
-| `<space>tt`         | Run all unit tests in the current file                                         |
-| `<space>tT`         | Pick a specific test method to run from a list                                 |
-| `:JdtUpdateConfig`  | Reload Gradle / Maven dependencies and refresh classpath                       |
-
-#### Debugging (DAP)
+### Universal Debugging (DAP)
 
 | Keybinding                              | Action                                                                         |
 |:----------------------------------------|:-------------------------------------------------------------------------------|
 | `<space>db`                             | Set or clear a breakpoint on current line                                      |
-| `<space>dc`                             | Attach to running Spring Boot process (`Debug (Attach) - Remote` on port 5005) |
+| `<space>dc`                             | Attach to running process (`Debug (Attach) - Remote` on port 5005)             |
 | `<space>di` / `<space>dO` / `<space>do` | Step into / step over / step out of current function                           |
 | `<space>du`                             | Toggle debugger UI panel (watches, variables, stack frames)                    |
 | `<space>dq`                             | Terminate debug session / stop running application                             |
 
-#### Navigation & Environment
-
-| Keybinding                   | Action                                                                         |
-|:-----------------------------|:-------------------------------------------------------------------------------|
-| `<space>ta` or `<space>cgS`  | Switch back and forth between a Java class and its test file (or auto-create)  |
-| `gd`                         | Jump to definition (links `@Value` keys directly to `application.yml`)         |
-| `<space>co`                  | Organize imports (removes unused imports and sorts them)                       |
-| `<space>uF`                  | Turn automatic format on save on or off (`google-java-format`)                 |
-
-#### Java Refactorings (JDTLS)
-
-| Keybinding       | Action                                                              |
-|:-----------------|:--------------------------------------------------------------------|
-| `<space>cxv`     | Extract variable from expression under cursor                       |
-| `<space>cxc`     | Extract constant from value under cursor                            |
-| `<space>cxm` (v) | Extract selected lines into a new method                            |
-| `<space>cgs`     | Jump to super class implementation                                  |
-| `<space>ca`      | Show code actions (generate constructors, getters/setters, imports) |
-
-#### Code Formatting (Buffer & Selection)
-
-| Keybinding                                | Action                                                                |
-|:------------------------------------------|:----------------------------------------------------------------------|
-| `<space>cf`                               | Format active file (or visual selection) using `google-java-format`   |
-| `<space>cF`                               | Format injected languages (embedded SQL, JSON, Markdown in file)      |
-| `<space>uf`                               | Toggle auto-format on save for active buffer only                     |
-| `<space>uF`                               | Toggle auto-format on save globally across all buffers                |
-| `:ConformInfo`                            | Inspect active formatters and linter engines for current buffer       |
-| `:wa`                                     | Save all open buffers (triggers auto-format on each when enabled)     |
-| `:bufdo lua LazyVim.format({force=true})` | Force reformat across all currently open buffers in Neovim            |
-
-#### Project-Wide Formatting (Spotless)
-
-| Command / Directive            | Action                                                                     |
-|:-------------------------------|:---------------------------------------------------------------------------|
-| `./gradlew spotlessApply`      | Format **ALL** files across repo (Spotless + Google Java Format + imports) |
-| `./gradlew spotlessCheck`      | Check whether any files violate formatting rules without editing them      |
-| `git diff` / `<space>gd`       | Inspect formatting diffs applied by Spotless before committing             |
-| `// spotless:off` / `on`       | Comments to selectively disable/enable Spotless on specific code blocks    |
-| `ratchetFrom("origin/master")` | Spotless setting: formats only changed lines relative to master branch     |
-
----
-
-## 4. Diagnostics & External Tools
-
-### Diagnostics (Trouble & Inline)
+### Universal Diagnostics (Trouble & Inline)
 
 | Keybinding              | Action                                                       |
 |:------------------------|:-------------------------------------------------------------|
@@ -245,7 +200,7 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `]q` / `[q`             | Jump to next / previous error in list without focusing panel |
 | `<Ctrl-j>` / `<Ctrl-k>` | Move cursor down into error panel or back up into code       |
 
-### Database, Git & Terminal
+### Universal Database, Git & Terminal
 
 | Keybinding                | Action                                                             |
 |:--------------------------|:-------------------------------------------------------------------|
@@ -262,20 +217,18 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `u` / `<Ctrl-r>`          | Undo / redo last edit                                              |
 | `q`                       | Stop recording macro if `recording @q` appears in status line      |
 
----
+### Inside the Buffer (Universal CRUD Text Motions)
 
-## 5. Inside the Buffer (CRUD)
+#### C · Create & Insert
 
-### C · Create & Insert
-
-#### Words & Tokens
+##### Words & Tokens
 | Keybinding | Action                     | Scope / Example           |
 |:-----------|:---------------------------|:--------------------------|
 | `ysiw)`    | Wrap word in parentheses   | `item` becomes `(item)`   |
 | `ysiw"`    | Wrap word in double quotes | `key` becomes `"key"`     |
 | `ysiw}`    | Wrap word in curly braces  | `props` becomes `{props}` |
 
-#### Blocks, Lines & Selections
+##### Blocks, Lines & Selections
 | Keybinding | Action                                     | Scope / Example                       |
 |:-----------|:-------------------------------------------|:--------------------------------------|
 | `S)` (v)   | Wrap visual selection in parentheses       | `x + y` becomes `(x + y)`             |
@@ -283,9 +236,9 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `o` / `O`  | Insert a new line below / above the cursor | Enters insert mode on fresh line      |
 | `p` / `P`  | Paste clipboard text after / before cursor | Pastes copied words, lines, or blocks |
 
-### R · Read, Jump & Select
+#### R · Read, Jump & Select
 
-#### Identifiers & Navigation
+##### Identifiers & Navigation
 | Keybinding              | Action                              | Scope / Example                                             |
 |:------------------------|:------------------------------------|:------------------------------------------------------------|
 | `gd`                    | Jump to definition                  | Takes you to where function, class, or variable is declared |
@@ -294,7 +247,7 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `<Ctrl-o>` / `<Ctrl-i>` | Jump back / jump forward            | Retraces cursor position backward/forward across files      |
 | `gI`                    | Jump to implementation              | Jumps to concrete class implementing an interface           |
 
-#### Visual Selections (Text Objects)
+##### Visual Selections (Text Objects)
 | Motion        | Action                         | Scope / Example                                      |
 |:--------------|:-------------------------------|:-----------------------------------------------------|
 | `viw`         | Select word under cursor       | In `config.timeout`, highlights `config` only        |
@@ -302,9 +255,9 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `vi(` / `vi"` | Select inside delimiters       | In `("active")`, highlights `active` without quotes  |
 | `vaf`         | Select entire function         | Highlights function annotations, signature, and body |
 
-### U · Update & Change
+#### U · Update & Change
 
-#### Words & Symbols (`w` vs `W`)
+##### Words & Symbols (`w` vs `W`)
 | Keybinding  | Action                         | Scope / Example                                                 |
 |:------------|:-------------------------------|:----------------------------------------------------------------|
 | `ciw`       | Change word only               | In `config.timeout`, changes `config`, keeping `.timeout`       |
@@ -312,7 +265,7 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `caw`       | Change word and trailing space | Replaces word and cleans up adjacent spacing                    |
 | `<space>cr` | Rename symbol across project   | Renames variable or method everywhere using LSP                 |
 
-#### Blocks, Delimiters & Lines
+##### Blocks, Delimiters & Lines
 | Keybinding    | Action                                | Scope / Example                                                  |
 |:--------------|:--------------------------------------|:-----------------------------------------------------------------|
 | `ci(` / `ci"` | Change inside parentheses or quotes   | Clears inside `("data")` into `("")` and enters insert mode      |
@@ -322,9 +275,9 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `cc` or `S`   | Change entire line                    | Empties current line and indents to right level                  |
 | `<space>cf`   | Reformat code according to repo style | Formats file or visual selection (Google Java Format / Spotless) |
 
-### D · Delete & Strip
+#### D · Delete & Strip
 
-#### Words & Symbols (`w` vs `W`)
+##### Words & Symbols (`w` vs `W`)
 | Motion | Action                                   | Scope / Example                                                   |
 |:-------|:-----------------------------------------|:------------------------------------------------------------------|
 | `daw`  | Delete word                              | In `@decorator`, deletes `decorator`, leaving `@` behind          |
@@ -332,7 +285,7 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `diw`  | Delete word without trailing space       | In `config.timeout`, deletes `config`, leaving `.timeout`         |
 | `diW`  | Delete full token without trailing space | In `config.timeout`, deletes `config.timeout` without eating space|
 
-#### Blocks, Delimiters & Lines
+##### Blocks, Delimiters & Lines
 | Motion        | Action                           | Scope / Example                                  |
 |:--------------|:---------------------------------|:-------------------------------------------------|
 | `di(` / `di"` | Delete inside brackets or quotes | In `("user")`, deletes `user`, leaving `("")`    |
@@ -341,3 +294,55 @@ A fast, terminal-native daily reference for Tmux multiplexing, Neovim editing, a
 | `ds)`         | Strip parentheses                | Converts `(count)` into `count`                  |
 | `dd`          | Delete entire line               | Cuts current line into clipboard register        |
 | `D`           | Delete to end of line            | Cuts from cursor to line end (`d$`)              |
+
+---
+
+## 4. Language & LSP (Extensible Stacks)
+
+### Java & Spring Boot
+
+#### Class & Test Navigation
+
+| Keybinding                   | Action                                                                         |
+|:-----------------------------|:-------------------------------------------------------------------------------|
+| `<space>ta` or `<space>cgS`  | Switch back and forth between a Java class and its test file (or auto-create)  |
+| `gd`                         | Jump to definition (links `@Value` keys directly to `application.yml`)         |
+
+#### Running Applications & Tests
+
+| Keybinding          | Action                                                                         |
+|:--------------------|:-------------------------------------------------------------------------------|
+| `<space>dc`         | Run `main()` class or Spring Boot app (auto-discovers main classes via JDTLS)  |
+| `<Ctrl-/>`          | Toggle project terminal to run `./gradlew bootRun` or `./mvnw spring-boot:run` |
+| `<space>tr`         | Run the `@Test` method under cursor                                            |
+| `<space>tt`         | Run all unit tests in the current file                                         |
+| `<space>tT`         | Pick a specific test method to run from a list                                 |
+| `:JdtUpdateConfig`  | Reload Gradle / Maven dependencies and refresh classpath                       |
+
+#### Java Refactorings (JDTLS)
+
+| Keybinding       | Action                                                              |
+|:-----------------|:--------------------------------------------------------------------|
+| `<space>cxv`     | Extract variable from expression under cursor                       |
+| `<space>cxc`     | Extract constant from value under cursor                            |
+| `<space>cxm` (v) | Extract selected lines into a new method                            |
+| `<space>cgs`     | Jump to super class implementation                                  |
+| `<space>ca`      | Show code actions (generate constructors, getters/setters, imports) |
+| `<space>co`      | Organize imports (removes unused imports and sorts them)              |
+| `<space>uF`      | Turn automatic format on save on or off (`google-java-format`)        |
+
+#### Code Formatting & Linters (Spotless)
+
+| Command / Directive            | Action                                                                     |
+|:-------------------------------|:---------------------------------------------------------------------------|
+| `<space>cf`                    | Format active file (or visual selection) using `google-java-format`        |
+| `<space>cF`                    | Format injected languages (embedded SQL, JSON, Markdown in file)           |
+| `<space>uf`                    | Toggle auto-format on save for active buffer only                          |
+| `<space>uF`                    | Toggle auto-format on save globally across all buffers                     |
+| `:ConformInfo`                 | Inspect active formatters and linter engines for current buffer            |
+| `:wa`                          | Save all open buffers (triggers auto-format on each when enabled)          |
+| `./gradlew spotlessApply`      | Format **ALL** files across repo (Spotless + Google Java Format + imports) |
+| `./gradlew spotlessCheck`      | Check whether any files violate formatting rules without editing them      |
+| `git diff` / `<space>gd`       | Inspect formatting diffs applied by Spotless before committing             |
+| `// spotless:off` / `on`       | Comments to selectively disable/enable Spotless on specific code blocks    |
+| `ratchetFrom("origin/master")` | Spotless setting: formats only changed lines relative to master branch     |
