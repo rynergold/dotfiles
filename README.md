@@ -20,11 +20,15 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 
 ```
 .
+├── docs/
+│   └── keybindings.md         # Comprehensive developer cheatsheet across all tools
 ├── ghostty/
 │   ├── config                 # Ghostty settings (theme, keybinds, ligatures)
 │   └── totoro_custom_v2.jpg   # Background wallpaper
 ├── lazygit/
 │   └── config.yml             # Lazygit theme and rounded UI configuration
+├── tmux/
+│   └── .tmux.conf             # Tmux multiplexer (sessions, 35% splits, TokyoNight)
 ├── zsh/
 │   ├── .zshrc                 # Shell configuration and lazy-loaders
 │   └── .zsh_plugins.txt       # Antidote plugin list
@@ -39,7 +43,7 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 ### 1. Requirements
 ```bash
 brew install --cask ghostty
-brew install antidote fzf zoxide eza bat
+brew install antidote fzf zoxide eza bat tmux
 brew install --cask font-jetbrains-mono-nerd-font
 ```
 
@@ -53,6 +57,9 @@ cp ghostty/totoro_custom_v2.jpg ~/.config/ghostty/totoro_custom_v2.jpg
 # Lazygit
 mkdir -p ~/.config/lazygit
 cp lazygit/config.yml ~/.config/lazygit/config.yml
+
+# Tmux
+cp tmux/.tmux.conf ~/.tmux.conf
 
 # Zsh
 cp zsh/.zsh_plugins.txt ~/.zsh_plugins.txt

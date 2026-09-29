@@ -62,14 +62,14 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 
 ### Tmux Terminal Panes
 
-| Keybinding       | Action                                                         |
-|:-----------------|:---------------------------------------------------------------|
-| `Ctrl-b %`       | **W:** Split pane vertically to the right (Editor + Tests)     |
-| `Ctrl-b "`       | **W:** Split pane horizontally below                           |
-| `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right       |
-| `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (tap repeatedly)  |
-| `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                    |
-| Mouse Drag       | **R:** Click and drag pane border with trackpad                |
+| Keybinding       | Action                                                                         |
+|:-----------------|:-------------------------------------------------------------------------------|
+| `Ctrl-b %`       | **W:** Split pane vertically to the right (35% side drawer in current folder)  |
+| `Ctrl-b "`       | **W:** Split pane horizontally below (25% bottom drawer in current folder)    |
+| `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right                       |
+| `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (smooth tap with 600ms repeat)    |
+| `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                                    |
+| Mouse Drag       | **R:** Click and drag pane border with trackpad                                |
 
 ### Splits vs Tabs vs Sessions
 
