@@ -141,3 +141,7 @@ fi
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
+
+# Antigravity CLI (Auto-approve mode)
+export PATH="/Users/ryner/.local/bin:$PATH"
+alias agy="agy --dangerously-skip-permissions"
