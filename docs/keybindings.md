@@ -8,13 +8,13 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 
 ```text
 ┌────────────────────────────────────────────────────────┐
-│ 🖥️  1. GHOSTTY (Terminal Emulator)                      │
+│ 🖥️  1. GHOSTTY (Terminal Emulator)                     │
 │  ┌──────────────────────────────────────────────────┐  │
-│  │ ⚙️  2. TMUX (Workspace & Multiplexer)             │  │
+│  │ ⚙️  2. TMUX (Workspace & Multiplexer)            │  │
 │  │  ┌────────────────────────────────────────────┐  │  │
 │  │  │ 📄  3. NEOVIM (Editor & Universal Tooling) │  │  │
 │  │  │  ┌──────────────────────────────────────┐  │  │  │
-│  │  │  │ 🛠️  4. LANGUAGE & LSP (Extensible)    │  │  │  │
+│  │  │  │ 🛠️  4. LANGUAGE & LSP (Extensible)   │  │  │  │
 │  │  │  └──────────────────────────────────────┘  │  │  │
 │  │  └────────────────────────────────────────────┘  │  │
 │  └──────────────────────────────────────────────────┘  │
@@ -64,8 +64,9 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 
 | Keybinding       | Action                                                                         |
 |:-----------------|:-------------------------------------------------------------------------------|
-| `Ctrl-b %`       | **W:** Split pane vertically to the right (35% side drawer in current folder)  |
-| `Ctrl-b "`       | **W:** Split pane horizontally below (25% bottom drawer in current folder)    |
+| `Ctrl-b %`       | **W:** Split pane vertically to the right (Side-by-side in current folder)     |
+| `Ctrl-b "`       | **W:** Split pane horizontally below (Stacked rows in current folder)          |
+| `Ctrl-b <space>` | **R:** Cycle layout presets (flip vertical columns ↔ horizontal rows, 50/50)  |
 | `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right                       |
 | `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (smooth tap with 600ms repeat)    |
 | `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                                    |
