@@ -20,6 +20,12 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 
 ```
 .
+├── antigravity/
+│   ├── apply-antigravity-theme.sh # Desktop custom video theme and DOM walker patcher
+│   ├── update-antigravity.sh      # Clean update extractor and theme re-applier
+│   ├── revert-antigravity-theme.sh# Restore stock Antigravity bundle
+│   ├── custom.css                 # Translucent Gruvbox stylesheet
+│   └── patch-custom-css-final.sh  # Standalone Totoro wallpaper patcher
 ├── docs/
 │   └── keybindings.md         # Comprehensive developer cheatsheet across all tools
 ├── ghostty/
@@ -49,6 +55,10 @@ brew install --cask font-jetbrains-mono-nerd-font
 
 ### 2. Copy Configs
 ```bash
+# Antigravity
+mkdir -p ~/.gemini/antigravity
+cp antigravity/* ~/.gemini/antigravity/
+
 # Ghostty
 mkdir -p ~/.config/ghostty
 cp ghostty/config ~/.config/ghostty/config
