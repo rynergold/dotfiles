@@ -46,40 +46,66 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 
 ## 2. Tmux (Workspace & Multiplexer)
 
-### Tmux Projects & Sessions (tms)
+### Tmux Sessions (Isolated Workspaces)
 
-| Keybinding          | Action                                                          | C    |
-|:--------------------|:----------------------------------------------------------------|:-----|
-| `Ctrl-f` or `tms`   | **N:** Fuzzy search & jump into any work repo or Eden notes     | 👻   |
-| `<space>fp`         | **N:** Project switcher popup from inside the code editor       | ✏️   |
-| `Ctrl-b f`          | **N:** Project switcher popup from inside any tmux session      | Tmux |
-| `Tab` (in popup)    | **W:** Multi-select sessions (toggle select one or more)        | Tmux |
-| `Ctrl-x` (in popup) | **W:** Kill highlighted or Tab-selected session(s) live in popup| Tmux |
-| `Ctrl-b s`          | **N:** Interactive session tree list (navigate `j`/`k`, `x` kill)| Tmux |
-| `Ctrl-b d`          | **W:** Detach session (leaves editor & background tests running)| Tmux |
-| `Ctrl-b X`          | **W:** Kill active session (prompts confirmation `y/n`)         | Tmux |
-| `:qa` then `exit`   | **W:** Quit Neovim and terminate active session completely      | ✏️   |
+| Keybinding          | Action                                                                    | C    |
+|:--------------------|:--------------------------------------------------------------------------|:-----|
+| `Ctrl-b N`          | **W:** Create new named session on the fly (prompts for name and switches)| Tmux |
+| `Ctrl-b s`          | **N:** Interactive session tree list (navigate `j`/`k`, `x` kill, `Enter`)| Tmux |
+| `Ctrl-b (` / `)`    | **N:** Instant jump to previous / next active session                     | Tmux |
+| `Ctrl-b f`          | **N:** Project switcher popup (`tmux-sessionizer` directory fuzzy-finder) | Tmux |
+| `Ctrl-f` or `tms`   | **N:** Launch project switcher from shell prompt                          | 👻   |
+| `<space>fp`         | **N:** Project switcher popup from inside Neovim                          | ✏️   |
+| `Tab` (in popup)    | **W:** Multi-select sessions (toggle select one or more)                  | Tmux |
+| `Ctrl-x` (in popup) | **W:** Kill highlighted or Tab-selected session(s) live in popup          | Tmux |
+| `Ctrl-b d`          | **W:** Detach session (leaves editor & background tests running in RAM)   | Tmux |
+| `Ctrl-b X`          | **W:** Kill active session completely (prompts confirmation `y/n`)        | Tmux |
 
-### Tmux Terminal Panes
+### Tmux Windows (Tabs within Current Project)
 
-| Keybinding       | Action                                                                         |
-|:-----------------|:-------------------------------------------------------------------------------|
-| `Ctrl-b %`       | **W:** Split pane vertically to the right (Side-by-side in current folder)     |
-| `Ctrl-b "`       | **W:** Split pane horizontally below (Stacked rows in current folder)          |
-| `Ctrl-b <space>` | **R:** Cycle layout presets (flip vertical columns ↔ horizontal rows, 50/50)  |
-| `Ctrl-b h/j/k/l` | **N:** Move focus to pane on left / bottom / top / right                       |
-| `Ctrl-b H/J/K/L` | **R:** Resize pane width / height by 5 cells (smooth tap with 600ms repeat)    |
-| `Ctrl-b z`       | **R:** Zoom / fullscreen active pane toggle                                    |
-| Mouse Drag       | **R:** Click and drag pane border with trackpad                                |
+| Keybinding          | Action                                                                    |
+|:--------------------|:--------------------------------------------------------------------------|
+| `Ctrl-b c`          | **W:** Create a new window tab in the current project (`c` = create)      |
+| `Ctrl-b 1` .. `9`   | **N:** Jump directly to window tab 1 .. 9                                 |
+| `Ctrl-b n`          | **N:** Go to next window tab (`n` = next)                                 |
+| `Ctrl-b p`          | **N:** Go to previous window tab (`p` = previous)                         |
+| `Ctrl-b l`          | **N:** Toggle back-and-forth between last two active tabs (like Alt-Tab)  |
+| `Ctrl-b ,`          | **W:** Rename current window tab                                          |
+| `Ctrl-b &`          | **W:** Close / kill current window tab (prompts `y/n`)                    |
 
-### Splits vs Tabs vs Sessions
+### Tmux Terminal Panes (Splits)
 
-| Scope                | What it is                    | When to use it                                                 |
-|:---------------------|:------------------------------|:---------------------------------------------------------------|
-| **Buffer (Top Bar)** | File loaded into RAM          | Open files you are editing; cycled with `[b` / `]b`            |
-| **Window Split**     | Tiled view within same screen | View 2+ files simultaneously (code + test, code + guide)       |
-| **Tabpage**          | Full-screen layout page       | Separate visual workspaces within the same project             |
-| **Terminal Tab**     | Separate Ghostty tab / tmux   | Completely separate projects (Work repo vs Notes vs Dotfiles)  |
+| Keybinding          | Action                                                                    |
+|:--------------------|:--------------------------------------------------------------------------|
+| `Ctrl-b %`          | **W:** Split pane vertically to the right (Side-by-side in current folder)|
+| `Ctrl-b "`          | **W:** Split pane horizontally below (Stacked rows in current folder)     |
+| `Ctrl-b <space>`    | **R:** Cycle layout presets (flip vertical columns ↔ horizontal rows, 50/50)|
+| `Ctrl-b h/j/k/l`    | **N:** Move focus to pane on left / bottom / top / right                  |
+| `Ctrl-b H/J/K/L`    | **R:** Resize pane width / height by 5 cells (smooth tap with 600ms repeat)|
+| `Ctrl-b z`          | **R:** Zoom / fullscreen active pane toggle                               |
+| Mouse Drag          | **R:** Click and drag pane border with trackpad                           |
+
+### Tmux Scrollback & AI Message Navigation (Vim Mode)
+
+| Keybinding          | Action                                                                    |
+|:--------------------|:--------------------------------------------------------------------------|
+| `Ctrl-b u`          | **1-Key Message Snap:** Enters scroll mode & snaps to top of latest AI msg|
+| `Ctrl-b [`          | **N:** Enter Vi scrollback / copy mode without mouse                      |
+| `[` / `]`           | **N:** (In copy mode) Jump backward / forward between prompt message turns |
+| `k` / `j`           | **N:** (In copy mode) Scroll up / down line-by-line                       |
+| `Ctrl-u` / `Ctrl-d` | **N:** (In copy mode) Half-page scroll up / down                          |
+| `g` / `G`           | **N:** (In copy mode) Jump to top / bottom of scrollback history          |
+| `/` or `?`          | **N:** (In copy mode) Search forward (`/`) or backward (`?`) for text      |
+| `v` then `y`        | **E:** (In copy mode) Visual select text $\rightarrow$ yank to macOS clipboard|
+| `q` or `Enter`      | **N:** Exit scroll mode and return immediately to active prompt typing    |
+
+### Mental Model: Panes vs Tabs vs Sessions
+
+| Scope                | Analogy                       | What it is                    | When to use it                                              |
+|:---------------------|:------------------------------|:------------------------------|:------------------------------------------------------------|
+| **Split (Pane)**     | Split Screen                  | Tiled views on same screen    | Code + AI pair (Neovim on left, `agy` on right)             |
+| **Window (Tab)**     | Browser Tab (`Ctrl-b c`)      | Full-screen tabs in 1 project | Tab 1: Editor/AI pair · Tab 2: Test runner · Tab 3: Git     |
+| **Session**          | Separate Window (`Ctrl-b N`)  | Isolated project workspace    | Project A: `EasyTab` · Project B: `dotfiles` · Project C: `api` |
 
 ---
 
