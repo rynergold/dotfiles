@@ -51,6 +51,7 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 | Keybinding          | Action                                                                    | C    |
 |:--------------------|:--------------------------------------------------------------------------|:-----|
 | `Ctrl-b N`          | **W:** Create new named session on the fly (prompts for name and switches)| Tmux |
+| `Ctrl-b $`          | **W:** Rename active session (opens prompt pre-filled with current name)  | Tmux |
 | `Ctrl-b s`          | **N:** Interactive session tree list (navigate `j`/`k`, `x` kill, `Enter`)| Tmux |
 | `Ctrl-b (` / `)`    | **N:** Instant jump to previous / next active session                     | Tmux |
 | `Ctrl-b f`          | **N:** Project switcher popup (`tmux-sessionizer` directory fuzzy-finder) | Tmux |
