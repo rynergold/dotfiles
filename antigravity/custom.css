@@ -14,8 +14,8 @@ html, body {
   CRITICAL: Do NOT use backdrop-filter here, as it breaks macOS 
   native window traffic lights by altering CSS containing blocks.
 */
-#root, #app {
-  background-color: rgba(29, 32, 33, 0.85) !important;
+html body #root, html body #app {
+  background-color: rgba(29, 32, 33, 0.85);
   min-height: 100vh;
 }
 

@@ -17,20 +17,36 @@ if [ ! -d "$APP_PATH" ]; then
   exit 1
 fi
 
-# Clean up any leftover in-bundle backup that breaks macOS code seal
-rm -f "$RESOURCES_DIR/app.asar.original"
+# If a legacy in-bundle pristine backup exists, migrate it to the safe backup directory
+if [ -f "$RESOURCES_DIR/app.asar.original" ]; then
+    if [ ! -f "$BACKUP_PATH" ]; then
+        echo "Migrating legacy in-bundle backup to safe backup location: $BACKUP_PATH..."
+        cp "$RESOURCES_DIR/app.asar.original" "$BACKUP_PATH"
+    fi
+    rm -f "$RESOURCES_DIR/app.asar.original"
+fi
+if [ -f "$RESOURCES_DIR/app.asar.bak" ]; then
+    if [ ! -f "$BACKUP_PATH" ]; then
+        echo "Migrating legacy in-bundle backup to safe backup location: $BACKUP_PATH..."
+        cp "$RESOURCES_DIR/app.asar.bak" "$BACKUP_PATH"
+    fi
+    rm -f "$RESOURCES_DIR/app.asar.bak"
+fi
 
 echo "Checking ASAR state..."
+CURRENT_VERSION=$(defaults read "$APP_PATH/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
+
 if grep -q "Antigravity DOM Walker" "$ASAR_PATH"; then
     if [ ! -f "$BACKUP_PATH" ]; then
         echo "Error: Current app.asar is patched, but no backup exists to restore from!"
         exit 1
     fi
-    echo "Current app.asar is already patched. Restoring from pristine backup..."
+    echo "Current app.asar is already patched (version $CURRENT_VERSION). Restoring from pristine backup..."
     cp "$BACKUP_PATH" "$ASAR_PATH"
 else
-    echo "Current app.asar is pristine. Creating backup at $BACKUP_PATH..."
+    echo "Current app.asar is pristine (version $CURRENT_VERSION). Creating backup at $BACKUP_PATH..."
     cp "$ASAR_PATH" "$BACKUP_PATH"
+    echo "$CURRENT_VERSION" > "$BACKUP_DIR/version.txt"
 fi
 
 echo "Extracting app.asar..."
@@ -311,14 +327,17 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
 
   function needsOverride(bg) {
     if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') return false;
-    const srgbMatch = /^color\([^/]+(?:\/\s*([\d.]+))?\s*\)$/.exec(bg);
-    if (srgbMatch) {
-      const alpha = srgbMatch[1] === undefined ? 1 : parseFloat(srgbMatch[1]);
+    const colorMatch = /^(?:color\([^/]+|oklch\([^/]+|oklab\([^/]+|lab\([^/]+|lch\([^/]+)(?:\/\s*([\d.]+%?))?\s*\)$/.exec(bg);
+    if (colorMatch) {
+      if (colorMatch[1] === undefined) return true;
+      const aStr = colorMatch[1];
+      const alpha = aStr.endsWith('%') ? parseFloat(aStr)/100 : parseFloat(aStr);
       return alpha > OPACITY_FLOOR;
     }
-    const m = /^rgba?\(\s*[\d.]+[\s,]+[\d.]+[\s,]+[\d.]+(?:[\s,/]+([\d.]+))?\s*\)$/.exec(bg);
+    const m = /^rgba?\(\s*[\d.]+%?[\s,]+[\d.]+%?[\s,]+[\d.]+%?(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(bg);
     if (!m) return false;
-    const alpha = m[1] === undefined ? 1 : parseFloat(m[1]);
+    if (m[1] === undefined) return true;
+    const alpha = m[1].endsWith('%') ? parseFloat(m[1])/100 : parseFloat(m[1]);
     return alpha > OPACITY_FLOOR;
   }
 

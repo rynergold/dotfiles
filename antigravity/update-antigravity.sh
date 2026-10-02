@@ -1,16 +1,25 @@
 #!/bin/bash
 set -e
 
-ZIP_PATH="/Users/ryner/Library/Caches/com.google.antigravity/pending/Antigravity.zip"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_APP="/Applications/Antigravity.app"
 TMP_DIR=$(mktemp -d /tmp/antigravity_update.XXXXXX)
 
 echo "=== Antigravity Updater & Theme Re-applier ==="
 
-if [ ! -f "$ZIP_PATH" ]; then
-    echo "Error: Downloaded update zip not found at $ZIP_PATH"
+ZIP_PATH=""
+if [ -f "$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip" ]; then
+    ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip"
+elif [ -f "$HOME/Library/Caches/com.google.antigravity/update.zip" ]; then
+    ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/update.zip"
+fi
+
+if [ -z "$ZIP_PATH" ] || [ ! -f "$ZIP_PATH" ]; then
+    echo "Error: Downloaded update zip not found in com.google.antigravity caches"
     exit 1
 fi
+
+echo "Using update package: $ZIP_PATH"
 
 echo "1. Closing Antigravity if running..."
 osascript -e 'quit app "Antigravity"' 2>/dev/null || true
@@ -25,11 +34,12 @@ cp -R "$TMP_DIR/Antigravity.app" "$TARGET_APP"
 rm -rf "$TMP_DIR"
 xattr -cr "$TARGET_APP"
 
-echo "4. Removing obsolete backup from old version..."
+echo "4. Removing obsolete in-bundle backups..."
 rm -f "$TARGET_APP/Contents/Resources/app.asar.original"
+rm -f "$TARGET_APP/Contents/Resources/app.asar.bak"
 
 echo "5. Re-applying custom theme, background video, and Mononoki font..."
-/Users/ryner/.gemini/antigravity/apply-antigravity-theme.sh
+"$DIR/apply-antigravity-theme.sh"
 
 echo "6. Launching updated Antigravity..."
 open "$TARGET_APP"

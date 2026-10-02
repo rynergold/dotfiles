@@ -4,7 +4,9 @@ set -e
 APP_PATH="/Applications/Antigravity.app"
 RESOURCES_DIR="$APP_PATH/Contents/Resources"
 ASAR_PATH="$RESOURCES_DIR/app.asar"
-BACKUP_PATH="$RESOURCES_DIR/app.asar.bak"
+BACKUP_DIR="$HOME/.gemini/antigravity/backups"
+mkdir -p "$BACKUP_DIR"
+BACKUP_PATH="$BACKUP_DIR/app.asar.original"
 TMP_DIR=$(mktemp -d /tmp/antigravity_asar_patch.XXXXXX)
 
 echo "=== Antigravity Desktop DevTools Enabler ==="
@@ -14,12 +16,22 @@ if [ ! -d "$APP_PATH" ]; then
   exit 1
 fi
 
-if [ ! -f "$ASAR_PATH" ]; then
-  echo "Creating backup of app.asar -> app.asar.bak..."
-  cp "$ASAR_PATH" "$ASAR_PATH"
+# Clean up in-bundle legacy backups
+if [ -f "$RESOURCES_DIR/app.asar.original" ]; then
+    [ ! -f "$BACKUP_PATH" ] && cp "$RESOURCES_DIR/app.asar.original" "$BACKUP_PATH"
+    rm -f "$RESOURCES_DIR/app.asar.original"
+fi
+if [ -f "$RESOURCES_DIR/app.asar.bak" ]; then
+    [ ! -f "$BACKUP_PATH" ] && cp "$RESOURCES_DIR/app.asar.bak" "$BACKUP_PATH"
+    rm -f "$RESOURCES_DIR/app.asar.bak"
 fi
 
-echo "Extracting app.asar from backup for a clean state..."
+if [ ! -f "$BACKUP_PATH" ]; then
+  echo "Creating pristine backup of app.asar at $BACKUP_PATH..."
+  cp "$ASAR_PATH" "$BACKUP_PATH"
+fi
+
+echo "Extracting app.asar..."
 npx asar extract "$ASAR_PATH" "$TMP_DIR/app"
 
 UTILS_JS="$TMP_DIR/app/dist/utils.js"
@@ -30,16 +42,18 @@ if [ ! -f "$UTILS_JS" ]; then
   exit 1
 fi
 
-echo "Patching utils.js to permanently enable devTools..."
-# Replace `devTools: !electron_1.app.isPackaged` with `devTools: true`
+echo "Patching utils.js to permanently enable devTools and local file access..."
 sed -i '' 's/devTools: !electron_1.app.isPackaged/devTools: true/g' "$UTILS_JS"
+sed -i '' 's/webPreferences: {/webPreferences: { webSecurity: false,/g' "$UTILS_JS"
 
-echo "Repacking app.asar..."
-npx asar pack "$TMP_DIR/app" "$ASAR_PATH"
+echo "Repacking app.asar with native modules properly excluded..."
+npx asar pack "$TMP_DIR/app" "$ASAR_PATH" --unpack-dir "node_modules/chrome-devtools-mcp"
 
 rm -rf "$TMP_DIR"
 
-echo "Re-signing Antigravity.app bundle..."
+echo "Clearing quarantine attributes and re-signing Antigravity.app bundle..."
+xattr -cr "$APP_PATH"
 codesign --force --deep --sign - "$APP_PATH"
+xattr -cr "$APP_PATH"
 
 echo "=== Patch complete! DevTools enabled. ==="
