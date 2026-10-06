@@ -28,7 +28,7 @@ acquire_lock
 rm -f "$HOME/.gemini/antigravity/.theme-disabled"   # re-enables the auto-reapply job after a revert
 BACKUP_PATH="$BACKUP_DIR/app.asar.original"
 TMP_DIR=$(mktemp -d /tmp/antigravity_asar_patch.XXXXXX)
-VIDEO_PATH="/Users/ryner/Movies/animestudy.mp4"
+VIDEO_PATH="/Users/ryner/Movies/Travel the Universe While Relaxation ★ Space Ambient Music_720p.mp4"
 
 echo "=== Antigravity Desktop Custom Theme Patcher (VIDEO EDITION) ==="
 
