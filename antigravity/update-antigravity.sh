@@ -8,7 +8,13 @@ TMP_DIR=$(mktemp -d /tmp/antigravity_update.XXXXXX)
 echo "=== Antigravity Updater & Theme Re-applier ==="
 
 ZIP_PATH=""
-if [ -f "$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip" ]; then
+if [ -f "$HOME/Library/Caches/com.google.antigravity/update.zip" ] && [ -f "$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip" ]; then
+    if [ "$HOME/Library/Caches/com.google.antigravity/update.zip" -nt "$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip" ]; then
+        ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/update.zip"
+    else
+        ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip"
+    fi
+elif [ -f "$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip" ]; then
     ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/pending/Antigravity.zip"
 elif [ -f "$HOME/Library/Caches/com.google.antigravity/update.zip" ]; then
     ZIP_PATH="$HOME/Library/Caches/com.google.antigravity/update.zip"
@@ -23,7 +29,14 @@ echo "Using update package: $ZIP_PATH"
 
 echo "1. Closing Antigravity if running..."
 osascript -e 'quit app "Antigravity"' 2>/dev/null || true
-sleep 2
+for i in {1..10}; do
+    if ! pgrep -x "Antigravity" >/dev/null; then
+        break
+    fi
+    sleep 1
+done
+pkill -f "Antigravity Helper" 2>/dev/null || true
+sleep 1
 
 echo "2. Unpacking downloaded update bundle..."
 unzip -q "$ZIP_PATH" -d "$TMP_DIR"

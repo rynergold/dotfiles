@@ -36,7 +36,8 @@ fi
 echo "Checking ASAR state..."
 CURRENT_VERSION=$(defaults read "$APP_PATH/Contents/Info.plist" CFBundleShortVersionString 2>/dev/null || echo "unknown")
 
-if grep -q "Antigravity DOM Walker" "$ASAR_PATH"; then
+# Match both the current marker and the legacy "DOM Walker" one so old patches are still detected
+if grep -qE "Antigravity (Custom Theme|DOM Walker)" "$ASAR_PATH"; then
     if [ ! -f "$BACKUP_PATH" ]; then
         echo "Error: Current app.asar is patched, but no backup exists to restore from!"
         exit 1
@@ -55,11 +56,11 @@ npx asar extract "$ASAR_PATH" "$TMP_DIR/app"
 PRELOAD_JS="$TMP_DIR/app/dist/preload.js"
 UTILS_JS="$TMP_DIR/app/dist/utils.js"
 
-echo "Injecting DOM Walker and Video Background into preload.js..."
+echo "Injecting theme CSS and Video Background into preload.js..."
 cat << 'INNER_EOF' >> "$PRELOAD_JS"
 
 // ==========================================
-// Antigravity DOM Walker & Video Injector
+// Antigravity Custom Theme (video background + readable panels)
 // ==========================================
 ;(function() {
   function injectBaseCss() {
@@ -69,7 +70,7 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
       style.id = 'antigravity-custom-css';
       (document.head || document.documentElement).appendChild(style);
     }
-    
+
     style.textContent = `
       /* =========================================
          Custom Font: Mononoki
@@ -92,64 +93,76 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         font-weight: normal;
         font-style: italic;
       }
-
-      /* Apply Mononoki globally across the entire app (Zero !important) */
       html body, html body p, html body span, html body div, html body a, html body button, html body code, html body pre, html body .monaco-editor, html body .xterm, html body .xterm-screen, html body textarea, html body input {
         font-family: 'Mononoki', monospace;
       }
 
-      /* Base font size for rem-based Tailwind scaling */
-      html {
-        font-size: 18px;
-      }
-
       /* =========================================
-         CINEMATIC CHAT HIERARCHY
-         Zero !important - High Specificity
+         THEME TOKENS
+         The app is Tailwind v4 driven by ~14 CSS variables (bg-background = var(--background),
+         bg-sidebar = var(--sidebar), ...). Overriding the variables re-themes everything,
+         including gradient fades, with no per-element selectors and no DOM walking.
+         Custom properties set !important here beat the app's own :root block.
+         Tune the whole look with the two --ag-* values.
          ========================================= */
+      html:root {
+        --ag-tint:  rgba(18, 18, 18, 0.93);  /* sidebars, right pane, top bars */
+        --ag-panel: rgba(18, 18, 18, 0.60);  /* chat column */
 
-      /* Global Readability: Text Shadow instead of bulky background boxes */
-      html body div[role="article"] {
-        text-shadow: 0px 2px 5px rgba(0,0,0, 0.9), 0px 0px 2px rgba(0,0,0, 0.8);
-      }
-      /* Keep code blocks crisp without shadows */
-      html body pre, html body code, html body .monaco-editor, html body .xterm, html body .xterm-screen {
-        text-shadow: none;
+        --background: transparent !important;                  /* video shows through the main area */
+        --sidebar: var(--ag-tint) !important;
+        --sidebar-secondary: rgba(45, 45, 45, 0.85) !important;
+        --sidebar-muted: rgba(255, 255, 255, 0.08) !important; /* row hover */
+        --card: rgba(24, 24, 24, 0.92) !important;             /* input box, tooltips, menus */
+        --card-border: rgba(34, 34, 34, 0.92) !important;
+        --muted: rgba(21, 21, 21, 0.85) !important;
       }
 
-      /* Layout Transparency - Zero !important - High Specificity */
       html, body, html body #root, html body #app {
         background-color: transparent;
         background-image: none;
       }
-      
-      html body #root > div:first-child,
-      html body > div:first-child {
-        background-color: transparent;
+
+      /* Chat column: one calm tint instead of per-message boxes */
+      html body [data-testid="conversation-view"] {
+        background-color: var(--ag-panel);
       }
 
-      /* Transparent layout containers to let background video show through */
-      html body #root div[class*="bg-background"],
-      html body #root div[class*="bg-sidebar"],
-      html body div[class*="bg-zinc-950"],
-      html body div[class*="bg-zinc-900"],
-      html body div[class*="bg-neutral-950"],
-      html body div[class*="bg-neutral-900"],
-      html body div[class*="bg-black"],
-      html body div[class*="bg-background"],
-      html body div[class*="bg-sidebar"],
-      html body aside,
-      html body main,
-      html body [role="main"] {
-        background-color: transparent;
+      /* Regions that used bg-background (now transparent) but need a backing:
+         the two top bars and the whole right pane (header + body). */
+      html body div[class*="select-none"][class*="justify-between"][class*="overflow-hidden"]:has([data-testid="install-editor"]),
+      html body div:has(> div[class*="border-b"][class*="pr-[72px]"]) {
+        background-color: var(--ag-tint);
       }
 
-      /* Obliterate inline style scroll shadows */
-      html body div.absolute.bottom-0.pointer-events-none[style*="linear-gradient"] {
-        background: transparent;
+      /* Section headers carry the .bg-sidebar token; scope the variable so they don't double-tint */
+      html body div[class*="section-header"] {
+        --sidebar: transparent !important;
       }
 
-      /* Fix the 2.11.0 Separated File Reference Chips inside bubbles */
+      /* Sidebar row hover actions: small dark pill instead of an opaque gradient fade */
+      html body [data-testid="conversation-row-sidebar"] div[class*="group-hover:opacity-100"] {
+        background-image: none;
+        background-color: var(--ag-tint);
+        border-radius: 8px;
+      }
+
+      /* xterm sets an inline opaque background-color, so this one needs !important */
+      html body .xterm-scrollable-element,
+      html body .xterm-viewport {
+        background-color: var(--ag-tint) !important;
+      }
+
+      /* =========================================
+         Readability, chips, misc
+         ========================================= */
+      html body div[role="article"] {
+        text-shadow: 0px 2px 5px rgba(0,0,0, 0.9), 0px 0px 2px rgba(0,0,0, 0.8);
+      }
+      html body pre, html body code, html body .monaco-editor, html body .xterm, html body .xterm-screen {
+        text-shadow: none;
+      }
+
       html body span.context-scope-mention {
         background-color: transparent;
       }
@@ -158,19 +171,9 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      /* Make the Terminal Pane completely transparent */
-      html body .xterm,
-      html body .xterm-viewport,
-      html body .xterm-scrollable-element,
-      html body .xterm-screen {
-        background-color: transparent;
-        background: transparent;
-      }
-
-      /* Add dark translucent backing to File Viewer for code readability */
       html body [aria-label="File Viewer"],
       html body [aria-label="File Viewer"] > div {
-        background-color: rgba(29, 32, 33, 0.85);
+        background-color: var(--ag-tint);
       }
 
       /* Hide the ghost loading spinner behind the terminal */
@@ -179,8 +182,7 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         display: none;
       }
 
-      /* Hover Animations for Cards (Pop-up effect) */
-      /* Exclude sidebar items using :not(:has(...)) */
+      /* Hover pop-up for cards (sidebar items excluded) */
       html body [data-testid="lifted-context-menu-trigger"]:not(:has([data-testid*="sidebar"])),
       html body .bg-card-border:not(:has([data-testid*="sidebar"])) {
         transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -193,11 +195,8 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
       }
 
       /* =========================================
-         SIDEBAR STATUS BAR HEADERS (STYLE B)
-         Zero !important - High Specificity
+         SIDEBAR STATUS BAR HEADERS (tagged by tagStatusHeaders below)
          ========================================= */
-
-      /* In Progress Header (Sunset Orange Left-Notch Bar) */
       button[data-project-card="true"][data-status-header="in-progress"] {
         background-color: rgba(255, 255, 255, 0.04);
         border-left: 4px solid #fe8019;
@@ -216,8 +215,6 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-color: rgba(254, 128, 25, 0.10);
         color: #fe8019;
       }
-
-      /* Idle Header (Soft Pine Left-Notch Bar) */
       button[data-project-card="true"][data-status-header="idle"] {
         background-color: rgba(255, 255, 255, 0.02);
         border-left: 4px solid rgba(131, 165, 152, 0.6);
@@ -237,13 +234,9 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         color: #83a598;
       }
 
-
       /* =========================================
          SENT MESSAGES & STICKY WRAPPER
-         Zero !important - High Specificity
          ========================================= */
-
-      /* Neutralize the sticky background, borders, and shadows */
       html body div[role="article"],
       html body div[role="article"] > div,
       html body div[role="article"] div[class*="sticky"],
@@ -260,8 +253,6 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         box-shadow: none;
         border: none;
       }
-
-      /* Eliminate top and bottom gradient fade bars */
       html body div[role="article"]::before,
       html body div[role="article"]::after,
       html body div[role="article"] > div::before,
@@ -280,7 +271,6 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-image: none;
         height: 0;
       }
-
     `;
   }
 
@@ -309,133 +299,30 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
     });
   }
 
-  // ==========================================
-  // Optimized Phase-Split DOM Walker (Claude Spec)
-  // ==========================================
-  const TARGET_ALPHA  = 0.85;
-  const TARGET        = `rgba(29, 32, 33, ${TARGET_ALPHA})`;
-  const AREA_RATIO    = 0.03;
-  const OPACITY_FLOOR = 0.9;
-
-  const SKIP_TAGS = new Set([
-    'SPAN', 'P', 'IMG', 'VIDEO', 'CANVAS', 'INPUT',
-    'TEXTAREA', 'SELECT', 'BR', 'HR', 'SCRIPT', 'STYLE',
-  ]);
-  const PROTECTED = '.xterm, .monaco-editor, [role="article"], [data-testid*="step"]';
-
-  const applied = new WeakSet();
-
-  function needsOverride(bg) {
-    if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') return false;
-    const colorMatch = /^(?:color\([^/]+|oklch\([^/]+|oklab\([^/]+|lab\([^/]+|lch\([^/]+)(?:\/\s*([\d.]+%?))?\s*\)$/.exec(bg);
-    if (colorMatch) {
-      if (colorMatch[1] === undefined) return true;
-      const aStr = colorMatch[1];
-      const alpha = aStr.endsWith('%') ? parseFloat(aStr)/100 : parseFloat(aStr);
-      return alpha > OPACITY_FLOOR;
-    }
-    const m = /^rgba?\(\s*[\d.]+%?[\s,]+[\d.]+%?[\s,]+[\d.]+%?(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(bg);
-    if (!m) return false;
-    if (m[1] === undefined) return true;
-    const alpha = m[1].endsWith('%') ? parseFloat(m[1])/100 : parseFloat(m[1]);
-    return alpha > OPACITY_FLOOR;
-  }
-
-  // Phase 1 — Traversal only (No layout reads/writes)
-  function collect(el, out) {
-    if (!(el instanceof HTMLElement)) return;
-    if (SKIP_TAGS.has(el.tagName)) return;
-    if (el.matches(PROTECTED)) return;
-    if (!applied.has(el)) out.push(el);
-    for (let c = el.firstElementChild; c; c = c.nextElementSibling) collect(c, out);
-  }
-
+  // Tag project status headers so the CSS above can style them (the only DOM work left)
   function tagStatusHeaders() {
     const btns = document.querySelectorAll('button[data-project-card="true"]');
     for (let i = 0; i < btns.length; i++) {
       const b = btns[i];
       const text = b.textContent || '';
-      if (text.includes('In Progress')) {
-        if (b.getAttribute('data-status-header') !== 'in-progress') {
-          b.setAttribute('data-status-header', 'in-progress');
-        }
-      } else if (text.includes('Idle')) {
-        if (b.getAttribute('data-status-header') !== 'idle') {
-          b.setAttribute('data-status-header', 'idle');
-        }
+      const status = text.includes('In Progress') ? 'in-progress' : text.includes('Idle') ? 'idle' : null;
+      if (status && b.getAttribute('data-status-header') !== status) {
+        b.setAttribute('data-status-header', status);
       }
     }
   }
 
-  function process(roots) {
-    tagStatusHeaders();
-    const candidates = [];
-    for (const root of roots) {
-      if (!(root instanceof HTMLElement) || !root.isConnected) continue;
-      if (root.closest(PROTECTED)) continue;
-      collect(root, candidates);
-    }
-    if (!candidates.length) return;
-
-    // Phase 2 — Reads only (One single layout flush)
-    const threshold = window.innerWidth * window.innerHeight * AREA_RATIO;
-    const hits = [];
-    for (const el of candidates) {
-      const r = el.getBoundingClientRect();
-      if (r.width * r.height < threshold) continue;
-      if (needsOverride(getComputedStyle(el).backgroundColor)) hits.push(el);
-    }
-    if (!hits.length) return;
-
-    // Phase 3 — Writes only (Zero !important)
-    for (const el of hits) {
-      el.style.setProperty('background-color', TARGET);
-      el.style.setProperty('background-image', 'none');
-      applied.add(el);
-    }
-
-    // Synchronously drain our own MutationObserver records triggered by Phase 3 writes
-    observer.takeRecords();
-  }
-
-  const pending = new Set();
   let frame = 0;
-
-  function schedule() {
+  const observer = new MutationObserver(() => {
     if (frame) return;
-    frame = requestAnimationFrame(() => {
-      frame = 0;
-      const roots = new Set(pending);
-      pending.clear();
-      process(roots);
-    });
-  }
-
-  const observer = new MutationObserver((records) => {
-    for (const rec of records) {
-      if (rec.type === 'attributes') {
-        if (rec.target.nodeType !== 1) continue;
-        applied.delete(rec.target);
-        pending.add(rec.target);
-      } else {
-        for (const n of rec.addedNodes) if (n.nodeType === 1) pending.add(n);
-      }
-    }
-    if (pending.size) schedule();
+    frame = requestAnimationFrame(() => { frame = 0; tagStatusHeaders(); });
   });
 
   function init() {
     injectBaseCss();
     injectVideoBackground();
-    
-    observer.observe(document.body || document.documentElement, { 
-      childList: true, subtree: true, 
-      attributes: true, attributeFilter: ['class', 'style'] 
-    });
-    
-    function fullPass() { pending.add(document.body || document.documentElement); schedule(); }
-    fullPass();
-    window.addEventListener('resize', fullPass, { passive: true });
+    tagStatusHeaders();
+    observer.observe(document.body || document.documentElement, { childList: true, subtree: true });
   }
 
   if (document.readyState === 'loading') {
