@@ -39,5 +39,5 @@ unfocused-split-opacity = 0.85
 # A see-through window lets the desktop video (antigravity/desktop-video) show through.
 # Pick the video with `agy-wallpaper`. background-opacity = 1 hides it again.
 # Cell backgrounds (tmux status, selections, colored blocks) stay opaque, so text stays readable.
-background-opacity = 0.55
-background-blur = 20
+background-opacity = 0.20
+background-blur = 28
