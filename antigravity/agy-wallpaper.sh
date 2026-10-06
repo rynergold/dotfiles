@@ -59,7 +59,8 @@ EOF
 set_video() {
     local arg="$1" f="" n=0 cand
     if [ -f "$arg" ]; then f="$arg"
-    elif [[ "$arg" =~ ^[0-9]+$ ]]; then f="$(videos | sed -n "${arg}p")"
+    elif [[ "$arg" =~ ^[0-9]+$ ]] && [ "$arg" -le "$(videos | wc -l)" ] && [ "$arg" -ge 1 ]; then
+        f="$(videos | sed -n "${arg}p")"   # a list number
     else
         while IFS= read -r cand; do
             case "$(basename "$cand" | tr '[:upper:]' '[:lower:]')" in *"$(echo "$arg" | tr '[:upper:]' '[:lower:]')"*) f="$cand"; n=$((n+1));; esac
