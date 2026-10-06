@@ -182,6 +182,9 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
       html body [data-testid="breadcrumb-segment"]:hover {
         background-color: var(--ag-tint);
         opacity: 1;
+        padding-left: 14px;
+        padding-right: 14px;
+        border-radius: 10px;
       }
       html body [data-testid="breadcrumb-segment"] {
         color: rgba(204, 204, 204, 0.7);
