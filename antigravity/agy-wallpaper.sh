@@ -1,10 +1,10 @@
 #!/bin/bash
 # Pick the Antigravity background video from the videos in ~/Movies.
 #
-#   wallpaper                 interactive picker (fzf if installed, otherwise a numbered menu)
-#   wallpaper list            numbered list, current one marked
-#   wallpaper set <n|name>    set by list number, filename substring, or full path
-#   wallpaper current         show the current video
+#   agy-wallpaper             interactive picker (fzf if installed, otherwise a numbered menu)
+#   agy-wallpaper list            numbered list, current one marked
+#   agy-wallpaper set <n|name> set by list number, filename substring, or full path
+#   agy-wallpaper current        show the current video
 #
 # How it works: the theme patch points the app at a fixed symlink (LINK below), so switching
 # videos is just re-pointing the symlink. No re-patch, no app restart. If Antigravity is
@@ -82,7 +82,7 @@ pick() {
     local sel
     if command -v fzf >/dev/null; then
         sel=$(videos | while IFS= read -r f; do printf '%s\t%s\n' "$f" "$(describe "$f")"; done \
-              | fzf --delimiter='\t' --with-nth=2 --prompt='wallpaper> ' --height=40% --reverse | cut -f1)
+              | fzf --delimiter='\t' --with-nth=2 --prompt='agy-wallpaper> ' --height=40% --reverse | cut -f1)
         [ -n "$sel" ] && set_video "$sel"
     else
         list || return 1
@@ -95,6 +95,6 @@ case "${1:-pick}" in
     pick)    pick ;;
     list)    list ;;
     current) c="$(current)"; [ -n "$c" ] && describe "$c" || echo "No wallpaper set" ;;
-    set)     [ -n "${2:-}" ] || { echo "usage: wallpaper set <number|name|path>"; exit 2; }; shift; set_video "$*" ;;
+    set)     [ -n "${2:-}" ] || { echo "usage: agy-wallpaper set <number|name|path>"; exit 2; }; shift; set_video "$*" ;;
     *)       set_video "$*" ;;
 esac

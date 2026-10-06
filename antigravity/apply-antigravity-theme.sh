@@ -28,12 +28,12 @@ acquire_lock
 rm -f "$HOME/.gemini/antigravity/.theme-disabled"   # re-enables the auto-reapply job after a revert
 BACKUP_PATH="$BACKUP_DIR/app.asar.original"
 TMP_DIR=$(mktemp -d /tmp/antigravity_asar_patch.XXXXXX)
-# Fixed symlink managed by wallpaper.sh: switching videos re-points it, no re-patch needed.
+# Fixed symlink managed by agy-wallpaper.sh: switching videos re-points it, no re-patch needed.
 VIDEO_PATH="$HOME/.gemini/antigravity/wallpaper.mp4"
 if [ ! -e "$VIDEO_PATH" ]; then
     mkdir -p "$(dirname "$VIDEO_PATH")"
     ln -sfn "$HOME/Movies/rebecca-wuthering-waves-x-cyberpunk-edgerunners-moewalls-com.mp4" "$VIDEO_PATH"
-    echo "No wallpaper was set; defaulting to the Rebecca clip. Change it any time with: wallpaper"
+    echo "No wallpaper was set; defaulting to the Rebecca clip. Change it any time with: agy-wallpaper"
 fi
 
 echo "=== Antigravity Desktop Custom Theme Patcher (VIDEO EDITION) ==="
