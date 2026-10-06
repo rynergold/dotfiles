@@ -21,11 +21,11 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 ```
 .
 ├── antigravity/
-│   ├── apply-antigravity-theme.sh # Desktop custom video theme and DOM walker patcher
+│   ├── apply-antigravity-theme.sh # Desktop custom video theme patcher (CSS-variable driven)
 │   ├── update-antigravity.sh      # Clean update extractor and theme re-applier
 │   ├── revert-antigravity-theme.sh# Restore stock Antigravity bundle
-│   ├── custom.css                 # Translucent Gruvbox stylesheet
-│   └── patch-custom-css-final.sh  # Standalone Totoro wallpaper patcher
+│   ├── enable-devtools.sh         # Enable Antigravity DevTools
+│   └── restore-devtools.sh        # Revert DevTools patch
 ├── docs/
 │   └── keybindings.md         # Comprehensive developer cheatsheet across all tools
 ├── ghostty/
