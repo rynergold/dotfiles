@@ -42,19 +42,34 @@ if grep -qE "Antigravity (Custom Theme|DOM Walker)" "$ASAR_PATH"; then
         echo "Error: Current app.asar is patched, but no backup exists to restore from!"
         exit 1
     fi
-    echo "Current app.asar is already patched (version $CURRENT_VERSION). Restoring from pristine backup..."
-    cp "$BACKUP_PATH" "$ASAR_PATH"
+    echo "Current app.asar is already patched (version $CURRENT_VERSION). Re-patching from pristine backup..."
 else
     echo "Current app.asar is pristine (version $CURRENT_VERSION). Creating backup at $BACKUP_PATH..."
     cp "$ASAR_PATH" "$BACKUP_PATH"
     echo "$CURRENT_VERSION" > "$BACKUP_DIR/version.txt"
 fi
 
-echo "Extracting app.asar..."
-npx asar extract "$ASAR_PATH" "$TMP_DIR/app"
+# Always build from the pristine backup, and only overwrite the live app.asar after every
+# guard below has passed. A failed run therefore leaves the installed app untouched.
+die() {
+    echo "ERROR: $1" >&2
+    echo "Antigravity has probably changed in an update. The installed app was NOT modified." >&2
+    rm -rf "$TMP_DIR"
+    exit 1
+}
+
+echo "Extracting pristine app.asar..."
+# asar needs its .unpacked folder next to it, so stage the backup beside a link to the live one
+mkdir -p "$TMP_DIR/src"
+cp "$BACKUP_PATH" "$TMP_DIR/src/app.asar"
+ln -s "$RESOURCES_DIR/app.asar.unpacked" "$TMP_DIR/src/app.asar.unpacked"
+npx asar extract "$TMP_DIR/src/app.asar" "$TMP_DIR/app"
 
 PRELOAD_JS="$TMP_DIR/app/dist/preload.js"
 UTILS_JS="$TMP_DIR/app/dist/utils.js"
+
+[ -f "$PRELOAD_JS" ] || die "dist/preload.js not found in app.asar (file layout changed)"
+[ -f "$UTILS_JS" ] || die "dist/utils.js not found in app.asar (file layout changed)"
 
 echo "Injecting theme CSS and Video Background into preload.js..."
 cat << 'INNER_EOF' >> "$PRELOAD_JS"
@@ -337,9 +352,16 @@ INNER_EOF
 export VIDEO_PATH
 node -e 'const fs = require("fs"); let c = fs.readFileSync(process.argv[1], "utf8"); c = c.replace("__VIDEO_PATH__", process.env.VIDEO_PATH); fs.writeFileSync(process.argv[1], c);' "$PRELOAD_JS"
 
+grep -q "Antigravity Custom Theme" "$PRELOAD_JS" || die "theme payload was not appended to preload.js"
+grep -q "__VIDEO_PATH__" "$PRELOAD_JS" && die "video path placeholder was not substituted"
+
 echo "Patching utils.js to permanently enable devTools and disable webSecurity for local videos..."
+grep -q 'devTools: !electron_1.app.isPackaged' "$UTILS_JS" || die "devTools pattern not found in utils.js"
+grep -q 'webPreferences: {' "$UTILS_JS" || die "webPreferences pattern not found in utils.js"
 sed -i '' 's/devTools: !electron_1.app.isPackaged/devTools: true/g' "$UTILS_JS"
 sed -i '' 's/webPreferences: {/webPreferences: { webSecurity: false,/g' "$UTILS_JS"
+grep -q 'devTools: true' "$UTILS_JS" || die "devTools patch did not apply"
+grep -q 'webSecurity: false' "$UTILS_JS" || die "webSecurity patch did not apply"
 
 echo "Repacking app.asar with native modules properly excluded..."
 npx asar pack "$TMP_DIR/app" "$ASAR_PATH" --unpack-dir "node_modules/chrome-devtools-mcp"
