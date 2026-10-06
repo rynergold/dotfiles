@@ -169,10 +169,12 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-color: var(--ag-panel);
       }
 
-      /* Regions that used bg-background (now transparent) but need a backing:
-         the two top bars and the whole right pane (header + body). */
-      html body div[class*="select-none"][class*="justify-between"][class*="overflow-hidden"]:has([data-testid="install-editor"]),
-      html body div:has(> div[class*="border-b"][class*="pr-[72px]"]) {
+      /* The two top bars stay see-through. The right pane body gets a backing (its header,
+         the border-b bar, is excluded), and the Install IDE button keeps a solid fill. */
+      html body div:has(> div[class*="border-b"][class*="pr-[72px]"]) > div:not([class*="border-b"]) {
+        background-color: var(--ag-tint);
+      }
+      html body [data-testid="install-editor"] {
         background-color: var(--ag-tint);
       }
 

@@ -65,8 +65,8 @@ const page = () => {
 
   // 4. Structural selectors (view-dependent, so WARN only)
   const sel = {
-    'top bar (install-editor)': 'div[class*="select-none"][class*="justify-between"][class*="overflow-hidden"]:has([data-testid="install-editor"])',
-    'right pane header': 'div[class*="border-b"][class*="pr-[72px]"]',
+    'Install IDE button': '[data-testid="install-editor"]',
+    'right pane (header + body)': 'div:has(> div[class*="border-b"][class*="pr-[72px]"]) > div:not([class*="border-b"])',
     'chat column (conversation-view)': '[data-testid="conversation-view"]',
     'sidebar conversation rows': '[data-testid="conversation-row-sidebar"]',
     'row hover actions': '[data-testid="conversation-row-sidebar"] div[class*="group-hover:opacity-100"]',
