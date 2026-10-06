@@ -24,6 +24,7 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 │   ├── apply-antigravity-theme.sh # Desktop custom video theme patcher (CSS-variable driven)
 │   ├── update-antigravity.sh      # Clean update extractor and theme re-applier
 │   ├── check-antigravity-theme.sh # Post-update smoke test (reads the app over its debug port)
+│   ├── auto-reapply.sh            # LaunchAgent job: re-applies the theme after an update + notifies (install/uninstall/run)
 │   ├── revert-antigravity-theme.sh# Restore stock Antigravity bundle
 │   ├── enable-devtools.sh         # Enable Antigravity DevTools
 │   └── restore-devtools.sh        # Revert DevTools patch

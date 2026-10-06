@@ -9,6 +9,10 @@ BACKUP_PATH="$BACKUP_DIR/app.asar.original"
 
 echo "=== Antigravity Theme Reverter ==="
 
+# Tell the auto-reapply job not to put the theme straight back
+mkdir -p "$HOME/.gemini/antigravity"
+touch "$HOME/.gemini/antigravity/.theme-disabled"
+
 if [ ! -d "$APP_PATH" ]; then
     echo "Error: Antigravity app not found at $APP_PATH"
     exit 1

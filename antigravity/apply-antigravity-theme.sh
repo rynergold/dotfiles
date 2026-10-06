@@ -6,6 +6,26 @@ RESOURCES_DIR="$APP_PATH/Contents/Resources"
 ASAR_PATH="$RESOURCES_DIR/app.asar"
 BACKUP_DIR="$HOME/.gemini/antigravity/backups"
 mkdir -p "$BACKUP_DIR"
+
+# Serialise with the auto-reapply job and update-antigravity.sh (mkdir is atomic)
+LOCK_DIR="$HOME/.gemini/antigravity/backups/.theme.lock"
+acquire_lock() {
+    [ -n "$AG_LOCK_HELD" ] && return 0
+    mkdir -p "$(dirname "$LOCK_DIR")"
+    for _ in $(seq 1 180); do
+        if mkdir "$LOCK_DIR" 2>/dev/null; then
+            trap 'rm -rf "$LOCK_DIR"' EXIT
+            export AG_LOCK_HELD=1
+            return 0
+        fi
+        [ -n "$(find "$LOCK_DIR" -maxdepth 0 -mmin +10 2>/dev/null)" ] && rm -rf "$LOCK_DIR"  # stale
+        sleep 1
+    done
+    echo "Error: another Antigravity theme job is running (lock: $LOCK_DIR)" >&2
+    exit 1
+}
+acquire_lock
+rm -f "$HOME/.gemini/antigravity/.theme-disabled"   # re-enables the auto-reapply job after a revert
 BACKUP_PATH="$BACKUP_DIR/app.asar.original"
 TMP_DIR=$(mktemp -d /tmp/antigravity_asar_patch.XXXXXX)
 VIDEO_PATH="/Users/ryner/Movies/animestudy.mp4"
