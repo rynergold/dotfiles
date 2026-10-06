@@ -135,9 +135,9 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-color: var(--ag-tint);
       }
 
-      /* Section headers carry the .bg-sidebar token; scope the variable so they don't double-tint */
-      html body div[class*="section-header"] {
-        --sidebar: transparent !important;
+      /* Section headers and their sticky wrappers carry their own .bg-sidebar; don't double-tint */
+      html body div.bg-sidebar div.bg-sidebar {
+        background-color: transparent;
       }
 
       /* Sidebar row hover actions: small dark pill instead of an opaque gradient fade */
