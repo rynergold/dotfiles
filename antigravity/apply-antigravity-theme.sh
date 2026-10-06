@@ -147,8 +147,8 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
          Tune the whole look with the two --ag-* values.
          ========================================= */
       html:root {
-        --ag-tint:  rgba(18, 18, 18, 0.93);  /* sidebars, right pane, top bars */
-        --ag-panel: rgba(18, 18, 18, 0.60);  /* chat column */
+        --ag-tint:  rgba(18, 18, 18, 0.97);  /* sidebars, right pane, top bars */
+        --ag-panel: rgba(18, 18, 18, 0.84);  /* chat column */
 
         --background: transparent !important;                  /* video shows through the main area */
         --sidebar: var(--ag-tint) !important;
