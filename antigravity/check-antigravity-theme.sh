@@ -65,7 +65,7 @@ const page = () => {
 
   // 4. Structural selectors (view-dependent, so WARN only)
   const sel = {
-    'Install IDE button': '[data-testid="install-editor"]',
+    'conversation title (breadcrumb)': '[data-testid="breadcrumb-segment"]',
     'right pane (header + body)': 'div:has(> div[class*="border-b"][class*="pr-[72px]"]) > div:not([class*="border-b"])',
     'chat column (conversation-view)': '[data-testid="conversation-view"]',
     'sidebar conversation rows': '[data-testid="conversation-row-sidebar"]',

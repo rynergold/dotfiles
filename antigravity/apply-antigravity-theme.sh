@@ -170,12 +170,24 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
       }
 
       /* The two top bars stay see-through. The right pane body gets a backing (its header,
-         the border-b bar, is excluded), and the Install IDE button keeps a solid fill. */
+         the border-b bar, is excluded), and the Install IDE button is hidden. */
       html body div:has(> div[class*="border-b"][class*="pr-[72px]"]) > div:not([class*="border-b"]) {
         background-color: var(--ag-tint);
       }
       html body [data-testid="install-editor"] {
+        display: none;  /* Install IDE button: hidden */
+      }
+      /* Conversation title: same solid dark fill at all times (not only on hover) */
+      html body [data-testid="breadcrumb-segment"],
+      html body [data-testid="breadcrumb-segment"]:hover {
         background-color: var(--ag-tint);
+        opacity: 1;
+      }
+      html body [data-testid="breadcrumb-segment"] {
+        color: rgba(204, 204, 204, 0.7);
+      }
+      html body [data-testid="breadcrumb-segment"]:hover {
+        color: var(--foreground);
       }
 
       /* Section headers and their sticky wrappers carry their own .bg-sidebar; don't double-tint */
