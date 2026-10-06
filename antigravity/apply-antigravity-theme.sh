@@ -159,6 +159,13 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         --muted: rgba(21, 21, 21, 0.85) !important;
       }
 
+      /* UI scale: Tailwind sizes everything in rem, so the root font size grows text, padding and
+         icons together (unlike zoom, which also shifts the traffic lights). The app sets an inline
+         font-size on <html>, hence !important. 16px = stock. */
+      html:root {
+        font-size: 18px !important;
+      }
+
       html, body, html body #root, html body #app {
         background-color: transparent;
         background-image: none;
@@ -198,10 +205,12 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-color: transparent;
       }
 
-      /* Sidebar row hover actions: small dark pill instead of an opaque gradient fade */
+      /* Sidebar row hover actions: the app fades them in over a gradient that ends in --sidebar-muted,
+         which would stack on the row's own hover highlight and glow. Use a solid pill coloured like
+         the hovered row (tint + the 8% white highlight) so it hides long titles without a visible box. */
       html body [data-testid="conversation-row-sidebar"] div[class*="group-hover:opacity-100"] {
-        background-image: none;
-        background-color: var(--ag-tint);
+        background-image: none !important;
+        background-color: color-mix(in srgb, var(--ag-tint) 92%, white) !important;
         border-radius: 8px;
       }
 
