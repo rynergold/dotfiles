@@ -33,8 +33,7 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 ├── docs/
 │   └── keybindings.md         # Comprehensive developer cheatsheet across all tools
 ├── ghostty/
-│   ├── config                 # Ghostty settings (theme, keybinds, ligatures)
-│   └── totoro_custom_v2.jpg   # Background wallpaper
+│   └── config                 # Ghostty settings (theme, keybinds, ligatures)
 ├── lazygit/
 │   └── config.yml             # Lazygit theme and rounded UI configuration
 ├── tmux/
@@ -66,7 +65,6 @@ cp antigravity/* ~/.gemini/antigravity/
 # Ghostty
 mkdir -p ~/.config/ghostty
 cp ghostty/config ~/.config/ghostty/config
-cp ghostty/totoro_custom_v2.jpg ~/.config/ghostty/totoro_custom_v2.jpg
 
 # Lazygit
 mkdir -p ~/.config/lazygit
