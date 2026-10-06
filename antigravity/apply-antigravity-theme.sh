@@ -144,11 +144,11 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
          bg-sidebar = var(--sidebar), ...). Overriding the variables re-themes everything,
          including gradient fades, with no per-element selectors and no DOM walking.
          Custom properties set !important here beat the app's own :root block.
-         Tune the whole look with the two --ag-* values.
+         Tune the whole look with the --ag-* values.
          ========================================= */
       html:root {
         --ag-tint:  rgba(18, 18, 18, 0.97);  /* sidebars, right pane, top bars */
-        --ag-panel: rgba(18, 18, 18, 0.84);  /* chat column */
+        --ag-dim:   rgba(0, 0, 0, 0.70);     /* black veil over the background video (0 = none, 1 = black) */
 
         --background: transparent !important;                  /* video shows through the main area */
         --sidebar: var(--ag-tint) !important;
@@ -171,9 +171,15 @@ cat << 'INNER_EOF' >> "$PRELOAD_JS"
         background-image: none;
       }
 
-      /* Chat column: one calm tint instead of per-message boxes */
-      html body [data-testid="conversation-view"] {
-        background-color: var(--ag-panel);
+      /* Darken the video itself instead of tinting the chat column: a fixed black veil sits
+         between the video (z -9999) and the UI, so the whole window is evenly dimmed. */
+      html::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -9998;
+        pointer-events: none;
+        background: var(--ag-dim);
       }
 
       /* The two top bars stay see-through. The right pane body gets a backing (its header,

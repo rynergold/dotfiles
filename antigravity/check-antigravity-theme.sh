@@ -58,6 +58,9 @@ const page = () => {
   }
   root.getPropertyValue('--background').trim() === 'transparent' ? out.ok.push('--background override active') : out.fail.push('--background override not active');
 
+  // 2b. Video veil
+  alpha(getComputedStyle(document.documentElement, '::before').backgroundColor) > 0 ? out.ok.push('video dim veil active') : out.warn.push('video dim veil missing (html::before)');
+
   // 3. Tinted regions render as tinted
   const sb = document.querySelector('div.bg-sidebar');
   if (!sb) out.fail.push('no div.bg-sidebar found (sidebar class renamed?)');
@@ -67,7 +70,6 @@ const page = () => {
   const sel = {
     'conversation title (breadcrumb)': '[data-testid="breadcrumb-segment"]',
     'right pane (header + body)': 'div:has(> div[class*="border-b"][class*="pr-[72px]"]) > div:not([class*="border-b"])',
-    'chat column (conversation-view)': '[data-testid="conversation-view"]',
     'sidebar conversation rows': '[data-testid="conversation-row-sidebar"]',
     'row hover actions': '[data-testid="conversation-row-sidebar"] div[class*="group-hover:opacity-100"]',
     'terminal (xterm)': '.xterm-scrollable-element',
