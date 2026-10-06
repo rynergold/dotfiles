@@ -4,6 +4,10 @@
 //      stacking order, so a transparent Ghostty (background-opacity < 1) shows the video
 //      no matter which other apps are open behind it.
 //
+// - Hides all video windows while an app from `hideFor` has a panel on screen (EasyTab's blurred
+//   panel would otherwise sample and show the video). Override with AGY_HIDE_FOR=bundle.id,bundle.id.
+// - The Ghostty backdrop gets a black veil; strength comes from ~/.gemini/antigravity/ghostty-video-dim
+//   (0...1, set with `agy-wallpaper dim 0.7`).
 // - Follows ~/.gemini/antigravity/wallpaper.mp4 (a symlink managed by agy-wallpaper); re-points live.
 // - Pauses when the desktop is fully covered by windows, or when the display sleeps.
 // - One player drives one window per screen, on every Space, ignoring the mouse.
@@ -19,6 +23,14 @@ final class DesktopVideo: NSObject {
     var displayAsleep = false
     var backdrops: [CGWindowID: NSWindow] = [:]
     let ghosttyBundleID = "com.mitchellh.ghostty"
+    let dimFile = (NSHomeDirectory() as NSString).appendingPathComponent(".gemini/antigravity/ghostty-video-dim")
+    var ghosttyDim: Float = 0.7
+    var lastDimRaw = ""
+    let hideFor: [String] = {
+        if let env = ProcessInfo.processInfo.environment["AGY_HIDE_FOR"] { return env.split(separator: ",").map(String.init) }
+        return ["com.open.easytab"]
+    }()
+    var hiddenForOverlay = false
 
     override init() {
         super.init()
@@ -39,7 +51,11 @@ final class DesktopVideo: NSObject {
 
         rebuildWindows()
         reloadIfLinkChanged()
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in self?.reloadIfLinkChanged() }
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            self?.reloadIfLinkChanged()
+            self?.reloadDimIfChanged()
+        }
+        reloadDimIfChanged()
         scheduleTracking()
     }
 
@@ -51,6 +67,31 @@ final class DesktopVideo: NSObject {
         Timer.scheduledTimer(withTimeInterval: ghosttyRunning ? 0.05 : 1.0, repeats: false) { [weak self] _ in
             self?.syncBackdrops()
             self?.scheduleTracking()
+        }
+    }
+
+    func reloadDimIfChanged() {
+        let raw = (try? String(contentsOfFile: dimFile, encoding: .utf8))?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard raw != lastDimRaw else { return }
+        lastDimRaw = raw
+        if let v = Float(raw) { ghosttyDim = max(0, min(1, v)) }
+        for win in backdrops.values { applyDim(to: win) }
+    }
+
+    func applyDim(to win: NSWindow) {
+        win.contentView?.layer?.sublayers?.first(where: { $0.name == "dim" })?.opacity = ghosttyDim
+    }
+
+    func overlayVisible(_ info: [[String: Any]]) -> Bool {
+        let pids = Set(hideFor.flatMap { NSRunningApplication.runningApplications(withBundleIdentifier: $0) }.map { $0.processIdentifier })
+        if pids.isEmpty { return false }
+        return info.contains { w in
+            guard let pid = w[kCGWindowOwnerPID as String] as? pid_t, pids.contains(pid),
+                  (w[kCGWindowAlpha as String] as? Double ?? 1) > 0,
+                  let b = w[kCGWindowBounds as String] as? [String: CGFloat],
+                  (b["Width"] ?? 0) >= 150, (b["Height"] ?? 0) >= 80
+            else { return false }
+            return true
         }
     }
 
@@ -71,6 +112,13 @@ final class DesktopVideo: NSObject {
         layer.frame = view.bounds
         layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         view.layer?.addSublayer(layer)
+        let dim = CALayer()
+        dim.name = "dim"
+        dim.backgroundColor = NSColor.black.cgColor
+        dim.opacity = ghosttyDim
+        dim.frame = view.bounds
+        dim.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        view.layer?.addSublayer(dim)
         win.contentView = view
         NotificationCenter.default.addObserver(self, selector: #selector(updatePlayback), name: NSWindow.didChangeOcclusionStateNotification, object: win)
         return win
@@ -78,9 +126,25 @@ final class DesktopVideo: NSObject {
 
     @objc func syncBackdrops() {
         let pids = Set(NSRunningApplication.runningApplications(withBundleIdentifier: ghosttyBundleID).map { $0.processIdentifier })
-        guard !pids.isEmpty,
-              let info = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]
-        else { removeBackdrops(keeping: []); return }
+        let info = (CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]]) ?? []
+
+        // An overlay app (EasyTab) is showing a blurred panel: take every video window away so it
+        // samples the normal desktop instead, and bring them back when the panel closes.
+        if overlayVisible(info) {
+            if !hiddenForOverlay {
+                hiddenForOverlay = true
+                windows.forEach { $0.orderOut(nil) }
+                removeBackdrops(keeping: [])
+                updatePlayback()
+            }
+            return
+        }
+        if hiddenForOverlay {
+            hiddenForOverlay = false
+            windows.forEach { $0.orderFrontRegardless() }
+        }
+
+        guard !pids.isEmpty else { removeBackdrops(keeping: []); updatePlayback(); return }
 
         let mine = Set(backdrops.values.map { CGWindowID($0.windowNumber) })
         var seen = Set<CGWindowID>()

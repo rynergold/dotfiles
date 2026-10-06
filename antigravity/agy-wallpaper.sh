@@ -4,6 +4,7 @@
 #   agy-wallpaper             interactive picker (fzf if installed, otherwise a numbered menu)
 #   agy-wallpaper list            numbered list, current one marked
 #   agy-wallpaper set <n|name> set by list number, filename substring, or full path
+#   agy-wallpaper dim [0-1]   how dark the video is behind Ghostty (0 = raw video, 1 = black; default 0.7)
 #   agy-wallpaper current        show the current video
 #
 # How it works: the theme patch points the app at a fixed symlink (LINK below), so switching
@@ -13,6 +14,7 @@ set -u
 
 MOVIES="${WALLPAPER_DIR:-$HOME/Movies}"
 LINK="$HOME/.gemini/antigravity/wallpaper.mp4"
+DIM_FILE="$HOME/.gemini/antigravity/ghostty-video-dim"
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 videos() { find "$MOVIES" -maxdepth 1 -type f \( -iname '*.mp4' -o -iname '*.webm' -o -iname '*.m4v' \) | sort; }
@@ -92,8 +94,19 @@ pick() {
     fi
 }
 
+dim_cmd() {
+    if [ -z "${1:-}" ]; then
+        echo "Ghostty video dim: $(cat "$DIM_FILE" 2>/dev/null || echo '0.7 (default)')"
+        return
+    fi
+    if ! [[ "$1" =~ ^(0|1|0?\.[0-9]+|1\.0+)$ ]]; then echo "dim must be a number from 0 to 1, e.g. agy-wallpaper dim 0.7"; return 2; fi
+    echo "$1" > "$DIM_FILE"
+    echo "Ghostty video dim -> $1 (applies within a couple of seconds)"
+}
+
 case "${1:-pick}" in
     pick)    pick ;;
+    dim)     shift; dim_cmd "${1:-}" ;;
     list)    list ;;
     current) c="$(current)"; [ -n "$c" ] && describe "$c" || echo "No wallpaper set" ;;
     set)     [ -n "${2:-}" ] || { echo "usage: agy-wallpaper set <number|name|path>"; exit 2; }; shift; set_video "$*" ;;
