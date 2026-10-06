@@ -40,3 +40,10 @@ background-image = ~/.config/ghostty/totoro_custom_v2.jpg
 background-image-opacity = 0.16
 background-image-fit = cover
 background-image-position = top-center
+
+# === LIVE VIDEO WALLPAPER ===
+# A see-through window lets the desktop video (antigravity/desktop-video) show through.
+# Pick the video with `agy-wallpaper`. background-opacity = 1 hides it again.
+# Cell backgrounds (tmux status, selections, colored blocks) stay opaque, so text stays readable.
+background-opacity = 0.80
+background-blur = 20
