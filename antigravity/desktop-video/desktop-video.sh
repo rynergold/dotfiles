@@ -3,6 +3,8 @@
 #
 #   desktop-video.sh install     compile the player and start it now + at every login
 #   desktop-video.sh uninstall   stop it and remove everything it installed
+#   desktop-video.sh stop        stop it and keep it off (also at login) until you run start
+#   desktop-video.sh start       turn it back on
 #   desktop-video.sh restart     recompile and restart (after editing the Swift file)
 #   desktop-video.sh status      is it running, and how much is it using
 #
@@ -43,7 +45,7 @@ PLISTEOF
 }
 
 stop() { launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true; }
-start() { launchctl bootstrap "$DOMAIN" "$PLIST"; }
+start() { launchctl enable "$DOMAIN/$LABEL" 2>/dev/null || true; launchctl bootstrap "$DOMAIN" "$PLIST"; }
 
 case "${1:-status}" in
 install)
@@ -53,6 +55,14 @@ install)
     ;;
 restart)
     stop; build; start; echo "Restarted."
+    ;;
+off|stop)
+    stop; launchctl disable "$DOMAIN/$LABEL" 2>/dev/null || true
+    echo "Stopped and disabled (it will not start at login). Turn it back on with: desktop-video.sh start"
+    ;;
+on|start)
+    [ -x "$BIN" ] || { echo "Not installed; run: desktop-video.sh install"; exit 1; }
+    start; echo "Started."
     ;;
 uninstall)
     stop; rm -f "$PLIST"; rm -rf "$BIN_DIR"
@@ -67,5 +77,5 @@ status)
         echo "not running"
     fi
     ;;
-*) echo "usage: $0 install|uninstall|restart|status"; exit 2 ;;
+*) echo "usage: $0 install|uninstall|start|stop|restart|status"; exit 2 ;;
 esac
