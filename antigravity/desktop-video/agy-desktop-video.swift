@@ -22,6 +22,9 @@ final class DesktopVideo: NSObject {
     var lastTarget = ""
     var displayAsleep = false
     var backdrops: [CGWindowID: NSWindow] = [:]
+    // Backdrops of Ghostty windows that are currently hidden. Kept alive (ordered out) so that when the
+    // window comes back its video layer is already painted; a freshly built layer shows black for ~0.5 s.
+    var parked: [CGWindowID: NSWindow] = [:]
     let ghosttyBundleID = "com.mitchellh.ghostty"
     let dimFile = (NSHomeDirectory() as NSString).appendingPathComponent(".gemini/antigravity/ghostty-video-dim")
     var ghosttyDim: Float = 0.7
@@ -163,7 +166,10 @@ final class DesktopVideo: NSObject {
 
             seen.insert(id)
             let frame = NSRect(x: x, y: primaryHeight - y - height, width: width, height: height)
-            let win = backdrops[id] ?? { let b = makeBackdrop(); backdrops[id] = b; return b }()
+            let win: NSWindow
+            if let live = backdrops[id] { win = live }
+            else if let kept = parked.removeValue(forKey: id) { backdrops[id] = kept; win = kept }
+            else { let b = makeBackdrop(); backdrops[id] = b; win = b }
             if win.frame != frame { win.setFrame(frame, display: false) }
 
             // Already directly beneath this Ghostty window? Then leave the stacking alone.
@@ -182,7 +188,10 @@ final class DesktopVideo: NSObject {
         for (id, win) in backdrops where !keeping.contains(id) {
             win.orderOut(nil)
             backdrops[id] = nil
+            parked[id] = win
         }
+        // Windows that were closed for good never come back; don't hoard their backdrops.
+        while parked.count > 6, let oldest = parked.keys.min() { parked[oldest] = nil }
     }
 
     @objc func rebuildWindows() {
