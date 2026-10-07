@@ -234,7 +234,10 @@ final class DesktopVideo: NSObject {
 }
 
 let app = NSApplication.shared
-app.setActivationPolicy(.accessory)
+// .prohibited (not .accessory): window switchers such as EasyTab list every normal-level window of a
+// regular or "substantial accessory" app, which put this player's backdrop in their lists. Windows
+// are still drawn normally for a prohibited app, and switchers skip it.
+app.setActivationPolicy(.prohibited)
 let wallpaper = DesktopVideo()
 _ = wallpaper
 app.run()
