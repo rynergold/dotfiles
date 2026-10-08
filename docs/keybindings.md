@@ -52,27 +52,28 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 |:--------------------|:--------------------------------------------------------------------------|:-----|
 | `Ctrl-b N`          | **W:** Create new named session on the fly (prompts for name and switches)| Tmux |
 | `Ctrl-b $`          | **W:** Rename active session (opens prompt pre-filled with current name)  | Tmux |
-| `Ctrl-b s`          | **N:** Interactive session tree list (navigate `j`/`k`, `x` kill, `Enter`)| Tmux |
-| `Ctrl-b (` / `)`    | **N:** Instant jump to previous / next active session                     | Tmux |
-| `Ctrl-b f`          | **N:** Project switcher popup (`tmux-sessionizer` directory fuzzy-finder) | Tmux |
-| `Ctrl-f` or `tms`   | **N:** Launch project switcher from shell prompt                          | 👻   |
-| `<space>fp`         | **N:** Project switcher popup from inside Neovim                          | ✏️   |
-| `Tab` (in popup)    | **W:** Multi-select sessions (toggle select one or more)                  | Tmux |
-| `Ctrl-x` (in popup) | **W:** Kill highlighted or Tab-selected session(s) live in popup          | Tmux |
-| `Ctrl-b d`          | **W:** Detach session (leaves editor & background tests running in RAM)   | Tmux |
-| `Ctrl-b X`          | **W:** Kill active session completely (prompts confirmation `y/n`)        | Tmux |
+| `Ctrl-b f` / `Ctrl-b s` | **N:** Switcher: open sessions, their windows, and saved projects in one list (`tmux-sessionizer`) | Tmux |
+| `Ctrl-b S`          | **N:** Classic tmux tree view (`choose-tree` fallback)                              | Tmux |
+| `Ctrl-b (` / `)`        | **N:** Instant jump to previous / next active session                     | Tmux |
+| `Ctrl-f` or `tms`       | **N:** Launch project switcher from shell prompt                          | 👻   |
+| `<space>fp`             | **N:** Project switcher popup from inside Neovim                          | ✏️   |
+| `Enter` (in switcher)   | **N:** Jump to the session / window, or create the session for a saved project |
+| `Ctrl-a` (in switcher)  | **N:** Save the current folder to the project list (`~/.config/tmux-projects`) |
+| `Ctrl-x` (in switcher)  | **N:** Kill the highlighted session / window, or remove a saved project |
+| `Ctrl-b d`              | **W:** Detach / minimize session (leaves editor & background tests running in RAM)   | Tmux |
+| `Ctrl-b X`              | **W:** Kill active session (auto-switches to next open session; prompts `y/n`)       | Tmux |
 
 ### Tmux Windows (Tabs within Current Project)
 
-| Keybinding          | Action                                                                    |
-|:--------------------|:--------------------------------------------------------------------------|
-| `Ctrl-b c`          | **W:** Create a new window tab in the current project (`c` = create)      |
-| `Ctrl-b 1` .. `9`   | **N:** Jump directly to window tab 1 .. 9                                 |
-| `Ctrl-b n`          | **N:** Go to next window tab (`n` = next)                                 |
-| `Ctrl-b p`          | **N:** Go to previous window tab (`p` = previous)                         |
-| `Ctrl-b l`          | **N:** Toggle back-and-forth between last two active tabs (like Alt-Tab)  |
-| `Ctrl-b ,`          | **W:** Rename current window tab                                          |
-| `Ctrl-b &`          | **W:** Close / kill current window tab (prompts `y/n`)                    |
+| Keybinding                     | Action                                                                              |
+| `Ctrl-b c`                     | **W:** Create a new window tab (inherits current pane's working directory)           |
+| `Ctrl-b 1` .. `9`              | **N:** Jump directly to window tab 1 .. 9                                           |
+| `Ctrl-b n`                     | **N:** Go to next window tab (`n` = next)                                           |
+| `Ctrl-b p`                     | **N:** Go to previous window tab (`p` = previous)                                   |
+| `Ctrl-b l`                     | **N:** Toggle back-and-forth between last two active tabs (like Alt-Tab)            |
+| `Ctrl-b ,`                     | **W:** Rename current window tab                                                    |
+| `Ctrl-b &`                     | **W:** Close / kill current window tab and all its splits at once (prompts `y/n`)   |
+| `Ctrl-b :` `move-window -t S:` | **W:** Move current tab into another session `S` (e.g. `move-window -t dotfiles:`)  |
 
 ### Tmux Terminal Panes (Splits)
 
@@ -90,23 +91,24 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 
 | Keybinding          | Action                                                                    |
 |:--------------------|:--------------------------------------------------------------------------|
-| `Ctrl-b u`          | **1-Key Message Snap:** Enters scroll mode & snaps to top of latest AI msg|
+| `Ctrl-b u`          | **1-Key Prompt Escape:** Enters copy mode & steps above prompt box (step back with `k`/`Ctrl-u`)|
 | `Ctrl-b [`          | **N:** Enter Vi scrollback / copy mode without mouse                      |
 | `[` / `]`           | **N:** (In copy mode) Jump backward / forward between prompt message turns |
 | `k` / `j`           | **N:** (In copy mode) Scroll up / down line-by-line                       |
 | `Ctrl-u` / `Ctrl-d` | **N:** (In copy mode) Half-page scroll up / down                          |
 | `g` / `G`           | **N:** (In copy mode) Jump to top / bottom of scrollback history          |
 | `/` or `?`          | **N:** (In copy mode) Search forward (`/`) or backward (`?`) for text      |
-| `v` then `y`        | **E:** (In copy mode) Visual select text $\rightarrow$ yank to macOS clipboard|
-| `q` or `Enter`      | **N:** Exit scroll mode and return immediately to active prompt typing    |
+| `v` then `y` or `Enter` | **E:** (In copy mode) Visual select text $\rightarrow$ yank to macOS clipboard (`pbcopy`)|
+| Mouse Drag              | **E:** (In copy mode) Highlight text with mouse $\rightarrow$ auto-yanks to clipboard    |
+| `q`                     | **N:** Exit scroll mode and return immediately to active prompt typing                   |
 
 ### Mental Model: Panes vs Tabs vs Sessions
 
-| Scope                | Analogy                       | What it is                    | When to use it                                              |
-|:---------------------|:------------------------------|:------------------------------|:------------------------------------------------------------|
-| **Split (Pane)**     | Split Screen                  | Tiled views on same screen    | Code + AI pair (Neovim on left, `agy` on right)             |
-| **Window (Tab)**     | Browser Tab (`Ctrl-b c`)      | Full-screen tabs in 1 project | Tab 1: Editor/AI pair · Tab 2: Test runner · Tab 3: Git     |
-| **Session**          | Separate Window (`Ctrl-b N`)  | Isolated project workspace    | Project A: `EasyTab` · Project B: `dotfiles` · Project C: `api` |
+| Scope                | Analogy                       | What it is                    | How to Kill                               | When to use it                                              |
+|:---------------------|:------------------------------|:------------------------------|:------------------------------------------|:------------------------------------------------------------|
+| **Split (Pane)**     | Split Screen                  | Tiled views on same screen    | `Ctrl-b x` (kills active split only)      | Code + AI pair (Neovim on left, `agy` on right)             |
+| **Window (Tab)**     | Browser Tab (`Ctrl-b c`)      | Full-screen tabs in 1 project | `Ctrl-b X` (kills tab & all its splits)   | Tab 1: Editor/AI pair · Tab 2: Test runner · Tab 3: Git     |
+| **Session**          | Separate Window (`Ctrl-b N`)  | Isolated project workspace    | `Ctrl-b C-x` (kills entire workspace)     | Project A: `EasyTab` · Project B: `dotfiles` · Project C: `api` |
 
 ---
 
@@ -118,12 +120,16 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 |:-----------------------------|:------------------------------------------------------------------------------|
 | `<space><space>`             | Search for files by name or fuzzy path across the project                      |
 | `<Ctrl-r>` / `<Ctrl-Enter>`  | In picker: Open selected file and **replace / close** current buffer          |
+| `<space>sb`                  | Fuzzy search lines in current file (case-insensitive live filter, replaces `/`)|
+| `<space>sB`                  | Fuzzy search lines across all currently open buffers                          |
 | `<space>/` or `<space>sg`    | Search for text across all files in the project                                |
 | `<space>fp`                  | Switch between projects and microservices in `~/Developer/Supply Chain Ops/`  |
-| `<space>fr`                  | Search and open a recently visited file across any project                     |
-| `<space>fb`                  | Search and switch between currently open buffers                               |
-| `<space>k`                   | Open this Keybindings Guide in a vertical split to the right                   |
-
+| `Enter` (in switcher)   | **N:** Jump to the session / window, or create the session for a saved project |
+| `Ctrl-a` (in switcher)  | **N:** Save the current folder to the project list (`~/.config/tmux-projects`) |
+| `Ctrl-x` (in switcher)  | **N:** Kill the highlighted session / window, or remove a saved project |
+| `<space>cb`                  | **C**ode **B**rowser: Open live synced Web Browser preview (opens browser side-by-side)|
+| `<space>um`                  | **U**I **M**arkdown: Toggle in-buffer rendered view (tables, headings, icons) on/off   |
+| `<space>uc`                  | **U**I **C**onceal: Toggle Markdown conceal on/off (show/hide raw syntax markers)      |
 ### File Explorer (CRUD)
 
 | Operation  | Key        | Action                                                         |
@@ -147,6 +153,7 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 | `<space>wm`                    | Toggle zoom / maximize active split (fullscreen toggle)        |
 | `<Ctrl-w>=`                    | Equalize width and height across all splits                    |
 | `<space>wd` or `<Ctrl-w>c`     | Close / delete the active window split                         |
+| `<space>wbd`                   | **Close active window split AND delete its buffer in one go**  |
 | `<Ctrl-w>o`                    | Close all other splits (keep only this active window)          |
 
 ### Window Splits (Navigate, Move & Rearrange)
@@ -187,7 +194,8 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 | `<space>bb`              | Toggle between current and last edited buffer                        |
 | `<Ctrl-o>` / `<Ctrl-i>`  | Jump back / jump forward in navigation history (like IntelliJ Cmd [ / ]) |
 | `<space>fb`              | Fuzzy search and switch between all open buffers                     |
-| `<space>bd`              | Close buffer (discards unsaved scratch files without saving)         |
+| `<space>bd`              | Close buffer (keeps window split open)                               |
+| `<space>wbd`             | **Close active window split AND delete its buffer in one go**         |
 | `<space>bo`              | Close all other open buffers except the active one                   |
 | `<space>fD` or `:Delete` | Permanently delete active file from disk and close its buffer        |
 | `:q`                     | Close active window                                                  |
@@ -257,12 +265,14 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 | `ysiw}`    | Wrap word in curly braces  | `props` becomes `{props}` |
 
 ##### Blocks, Lines & Selections
-| Keybinding | Action                                     | Scope / Example                       |
-|:-----------|:-------------------------------------------|:--------------------------------------|
-| `S)` (v)   | Wrap visual selection in parentheses       | `x + y` becomes `(x + y)`             |
-| `S"` (v)   | Wrap visual selection in double quotes     | `hello world` becomes `"hello world"` |
-| `o` / `O`  | Insert a new line below / above the cursor | Enters insert mode on fresh line      |
-| `p` / `P`  | Paste clipboard text after / before cursor | Pastes copied words, lines, or blocks |
+| Keybinding | Action                                     | Scope / Example                                              |
+|:-----------|:-------------------------------------------|:-------------------------------------------------------------|
+| `yy`       | Yank entire line to macOS system clipboard | Copies full line to clipboard (ready for `Cmd+v` in any app) |
+| `y` (v)    | Yank visual selection to macOS clipboard   | Copies highlighted text straight to macOS clipboard          |
+| `S)` (v)   | Wrap visual selection in parentheses       | `x + y` becomes `(x + y)`                                    |
+| `S"` (v)   | Wrap visual selection in double quotes     | `hello world` becomes `"hello world"`                        |
+| `o` / `O`  | Insert a new line below / above the cursor | Enters insert mode on fresh line                             |
+| `p` / `P`  | Paste clipboard text after / before cursor | Pastes copied words, lines, or blocks                        |
 
 #### R · Read, Jump & Select
 
