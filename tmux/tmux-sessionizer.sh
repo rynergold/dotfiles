@@ -13,7 +13,7 @@
 projects=~/.config/tmux-projects
 self=$(command -v -- "$0")
 
-name() { basename "$1" | tr . _; }
+name() { basename -- "$1" | tr . _; }
 
 go() {
   if [[ -z $TMUX ]]; then tmux attach-session -t "=$1"; else tmux switch-client -t "=$1"; fi
