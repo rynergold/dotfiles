@@ -1,4 +1,3 @@
-
 # === SDKMAN & RBENV PATHS (Directly on PATH for 0ms startup) ===
 export SDKMAN_DIR="$HOME/.sdkman"
 export PATH="$SDKMAN_DIR/candidates/java/current/bin:$SDKMAN_DIR/candidates/gradle/current/bin:$SDKMAN_DIR/candidates/kotlin/current/bin:$SDKMAN_DIR/candidates/maven/current/bin:$HOME/.rbenv/shims:$PATH"
@@ -54,26 +53,48 @@ rbenv() {
 # Deno
 [ -f "$HOME/.deno/env" ] && . "$HOME/.deno/env"
 
-# === FAST COMPLETIONS CACHE (1ms startup) ===
+# === FAST COMPLETIONS CACHE (0ms startup) ===
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+if [[ ! -f ${ZDOTDIR:-$HOME}/.zcompdump ]]; then
   compinit
+  zcompile "${ZDOTDIR:-$HOME}/.zcompdump" 2>/dev/null
 else
   compinit -C
+  [[ ! -s ${ZDOTDIR:-$HOME}/.zcompdump.zwc || ${ZDOTDIR:-$HOME}/.zcompdump -nt ${ZDOTDIR:-$HOME}/.zcompdump.zwc ]] && zcompile "${ZDOTDIR:-$HOME}/.zcompdump" 2>/dev/null
 fi
 
 # === ANTIDOTE PLUGIN MANAGER (zsh-vi-mode) ===
-source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
-antidote load
+export ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+if [[ ! -s ~/.zsh_plugins.zsh || ~/.zsh_plugins.txt -nt ~/.zsh_plugins.zsh ]]; then
+  [[ -f /opt/homebrew/opt/antidote/share/antidote/antidote.zsh ]] && source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh && antidote bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.zsh
+fi
+[[ -s ~/.zsh_plugins.zsh ]] && source ~/.zsh_plugins.zsh
 
 # === CLI TOOLS & PRODUCTIVITY ===
 # FZF (Fuzzy history search: Ctrl+R)
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Zoxide (Smarter cd)
-command -v zoxide >/dev/null 2>&1 && eval "$(command zoxide init zsh)"
+if command -v zoxide >/dev/null 2>&1; then
+  [[ ! -s ~/.zoxide.zsh ]] && zoxide init zsh > ~/.zoxide.zsh 2>/dev/null
+  source ~/.zoxide.zsh
+fi
 zn() {
   z "$@" && nvim .
+}
+
+# Tmux Project Switcher (tmux-sessionizer)
+alias tms="$HOME/.local/bin/tmux-sessionizer"
+run_tmux_sessionizer() {
+  BUFFER="tms"
+  zle accept-line
+}
+zle -N run_tmux_sessionizer
+bindkey '^f' run_tmux_sessionizer
+
+function zvm_after_init() {
+  zvm_bindkey viins '^f' run_tmux_sessionizer
+  zvm_bindkey vicmd '^f' run_tmux_sessionizer
 }
 
 # === PURE NATIVE ZSH PROMPT (0.00ms overhead) ===
@@ -142,6 +163,11 @@ fi
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:$HOME/.lmstudio/bin"
 
-# Antigravity CLI (Auto-approve mode)
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/ryner/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+
+
+# Added by Antigravity CLI installer
 export PATH="/Users/ryner/.local/bin:$PATH"
 alias agy="agy --dangerously-skip-permissions"
