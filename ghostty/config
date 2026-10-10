@@ -26,7 +26,11 @@ working-directory = home
 # Window Mode (Allow Rectangle snapping)
 fullscreen = false
 
-# Neovim & UX Settings
+# Keyboard 
+# Left Option acts as Alt 
+macos-option-as-alt = left
+
+# Neovim & UX Settings
 clipboard-read = allow
 clipboard-write = allow
 cursor-style = block
@@ -36,8 +40,6 @@ window-inherit-working-directory = true
 unfocused-split-opacity = 0.85
 
 # === LIVE VIDEO WALLPAPER ===
-# A see-through window lets the desktop video (antigravity/desktop-video) show through.
-# Pick the video with `agy-wallpaper`. background-opacity is the dark tint over the video:
-# 0 = none, 1 = opaque (video hidden). The tint colour is the theme background (#222436).
-# Cell backgrounds (tmux status, selections, colored blocks) stay opaque, so text stays readable.
+# Dark tint over the video
+# 0 = none, 1 = opaque (video hidden).
 background-opacity = 0.30
