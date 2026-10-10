@@ -73,7 +73,7 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 | `Ctrl-b l`                     | **N:** Toggle back-and-forth between last two active tabs (like Alt-Tab)            |
 | `Ctrl-b ,`                     | **W:** Rename current window tab                                                    |
 | `Ctrl-b &`                     | **W:** Close / kill current window tab and all its splits at once (prompts `y/n`)   |
-| `Ctrl-b :` `move-window -t S:` | **W:** Move current tab into another session `S` (e.g. `move-window -t dotfiles:`)  |
+| `Ctrl-b :` `move-window -t S:` | **W:** Move current tab into another session `S` (e.g. `move-window -t workbench:`)  |
 
 ### Tmux Terminal Panes (Splits)
 
@@ -108,7 +108,7 @@ A fast, terminal-native daily reference for Ghostty terminal, Tmux multiplexing,
 |:---------------------|:------------------------------|:------------------------------|:------------------------------------------|:------------------------------------------------------------|
 | **Split (Pane)**     | Split Screen                  | Tiled views on same screen    | `Ctrl-b x` (kills active split only)      | Code + AI pair (Neovim on left, `agy` on right)             |
 | **Window (Tab)**     | Browser Tab (`Ctrl-b c`)      | Full-screen tabs in 1 project | `Ctrl-b X` (kills tab & all its splits)   | Tab 1: Editor/AI pair · Tab 2: Test runner · Tab 3: Git     |
-| **Session**          | Separate Window (`Ctrl-b N`)  | Isolated project workspace    | `Ctrl-b C-x` (kills entire workspace)     | Project A: `EasyTab` · Project B: `dotfiles` · Project C: `api` |
+| **Session**          | Separate Window (`Ctrl-b N`)  | Isolated project workspace    | `Ctrl-b C-x` (kills entire workspace)     | Project A: `EasyTab` · Project B: `workbench` · Project C: `api` |
 
 ---
 
