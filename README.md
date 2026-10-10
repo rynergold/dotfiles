@@ -20,6 +20,10 @@ A tuned macOS workstation configuration with Ghostty, Zsh, Neovim workflows, and
 
 ```
 .
+├── ai/
+│   ├── claude/
+│   │   └── settings.json      # Claude Code settings (symlinked to ~/.claude/settings.json)
+│   └── clipboard.sh           # pbcopy bridge for agent subshells
 ├── antigravity/
 │   ├── apply-antigravity-theme.sh # Desktop custom video theme patcher (CSS-variable driven)
 │   ├── update-antigravity.sh      # Clean update extractor and theme re-applier
@@ -76,6 +80,10 @@ cp tmux/.tmux.conf ~/.tmux.conf
 # Zsh
 cp zsh/.zsh_plugins.txt ~/.zsh_plugins.txt
 cp zsh/.zshrc ~/.zshrc
+
+# Claude Code settings (symlink, so edits are tracked in git)
+mkdir -p ~/.claude
+ln -sfn "$PWD/ai/claude/settings.json" ~/.claude/settings.json
 
 # Silence login banner
 touch ~/.hushlogin
