@@ -1,34 +1,19 @@
-# Font & Ligatures (JetBrains Mono Nerd Font)
-font-family = "JetBrainsMono Nerd Font"
-font-size = 17
-adjust-cell-height = 15%
-font-feature = ["calt", "liga", "dlig"]
-
-# Color Theme (TokyoNight Moon - Soft pastel low-contrast)
-theme = TokyoNight Moon
-
-# Window Appearance (100% Clean & Borderless - Flush Status Bars & No Gaps)
-window-padding-x = 14
-window-padding-y = 0
-window-padding-balance = false
-window-padding-color = extend-always
-window-decoration = false
-macos-titlebar-style = hidden
-
 # Global Hotkey (Toggles visibility while PRESERVING Rectangle positions)
 # Shortcut: Option + `
 keybind = global:opt+grave_accent=toggle_visibility
 window-save-state = never
 working-directory = home
 
-# Window Mode (Allow Rectangle snapping)
-fullscreen = false
+# Keyboard
 
-# Keyboard 
 # Left Option acts as Alt 
 macos-option-as-alt = left
+# Enables key behaviour such as:
+# - scroll up/down chat whilst staying in input 
+# - drag selected lines up/down
 
 # Neovim & UX Settings
+# TODO: Need to separate this into specifically neovim and UX settings
 clipboard-read = allow
 clipboard-write = allow
 cursor-style = block
@@ -37,7 +22,26 @@ mouse-hide-while-typing = true
 window-inherit-working-directory = true
 unfocused-split-opacity = 0.85
 
-# === LIVE VIDEO WALLPAPER ===
-# Dark tint over the video
-# 0 = none, 1 = opaque (video hidden).
+# === Appearance ===
+
+# Window Configuration 
+# This enables Rectangle.app snapping
+fullscreen = false
+window-padding-x = 14
+window-padding-y = 0
+window-padding-balance = false
+window-padding-color = extend-always
+window-decoration = false
+macos-titlebar-style = hidden
+
+# 0 = none, 1 = opaque (affects video wallpaper).
 background-opacity = 0.30
+
+# Color Theme (TokyoNight Moon - Soft pastel low-contrast)
+theme = TokyoNight Moon
+
+# Font & Ligatures (JetBrains Mono Nerd Font)
+font-family = "JetBrainsMono Nerd Font"
+font-size = 17
+adjust-cell-height = 15%
+font-feature = ["calt", "liga", "dlig"]
